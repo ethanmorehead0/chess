@@ -1,3 +1,2 @@
 # chess
-
-# chess project for cs240
+chess project for cs240
