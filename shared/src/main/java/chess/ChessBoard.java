@@ -62,9 +62,20 @@ public class ChessBoard {
             squares[1][i]=new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
             squares[6][i]=new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
-        for(int i=0;i<2;i++){
-            squares[1][i]=new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-            squares[6][i]=new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        ChessGame.TeamColor team = ChessGame.TeamColor.WHITE;
+        for(int i=0;i<8;i+=7){
+            squares[i][0]=new ChessPiece(team, ChessPiece.PieceType.ROOK);
+            squares[i][7]=new ChessPiece(team, ChessPiece.PieceType.ROOK);
+
+            squares[i][1]=new ChessPiece(team, ChessPiece.PieceType.KNIGHT);
+            squares[i][6]=new ChessPiece(team, ChessPiece.PieceType.KNIGHT);
+
+            squares[i][2]=new ChessPiece(team, ChessPiece.PieceType.BISHOP);
+            squares[i][5]=new ChessPiece(team, ChessPiece.PieceType.BISHOP);
+
+            squares[i][3]=new ChessPiece(team, ChessPiece.PieceType.QUEEN);
+            squares[i][4]=new ChessPiece(team, ChessPiece.PieceType.KING);
+            team= ChessGame.TeamColor.BLACK;
         }
     }
 }
