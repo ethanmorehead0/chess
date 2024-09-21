@@ -73,21 +73,29 @@ public class ChessPiece {
         ArrayList<ChessMove> moves=new ArrayList<ChessMove>();
         switch (board.getPiece(myPosition).getPieceType()){
             case KING:
-
+                int[][] kingMove={{1,0,0},{1,1,0},{0,1,0},{-1,1,0},{-1,0,0},{-1,-1,0},{0,-1,0},{1,-1,0}};
+                addMoves(board,myPosition,moves,kingMove);
                 break;
             case QUEEN:
-
+                int[][] queenMove={{1,0,1},{1,1,1},{0,1,1},{-1,1,1},{-1,0,1},{-1,-1,1},{0,-1,1},{1,-1,1}};
+                addMoves(board,myPosition,moves,queenMove);
                 break;
             case BISHOP:
-
+                int[][] bishopMove={{1,1,1},{-1,1,1},{-1,-1,1},{1,-1,1}};
+                addMoves(board,myPosition,moves,bishopMove);
                 break;
             case KNIGHT:
-
+                int[][] knightMove={{2,1,0},{1,2,0},{-1,2,0},{-2,1,0},{-2,-1,0},{-1,-2,0},{1,-2,0},{2,-1,0}};
+                addMoves(board,myPosition,moves,knightMove);
                 break;
             case ROOK:
+                int[][] rookMove={{1,0,1}, {0,1,1},{-1,0,1},{0,-1,1},{1,-1,1}};
+                addMoves(board,myPosition,moves,rookMove);
 
                 break;
             case PAWN:
+                int[][] pawnMove={{0,0,0}};
+                addMoves(board,myPosition,moves,pawnMove);
 
                 break;
         }
@@ -95,6 +103,31 @@ public class ChessPiece {
         return moves;
     }
 
+    private void addMoves (ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> moves, int[][]movementType){
+        int row = myPosition.getRow();
+        int column = myPosition.getColumn();
+        for (int[] movement:movementType){
+            int addRow=movement[0];
+            int addColumn=movement[1];
+            do{
+                ChessPosition newPostion=new ChessPosition(row+movement[0],column+movement[1]);
+                if(newPostion.getRow()>0 && newPostion.getRow()<=8 && newPostion.getColumn()>0 && newPostion.getColumn()<=8){
+                    if(board.getPiece(newPostion) == null){
+                        moves.add(new ChessMove(myPosition, new ChessPosition(row+movement[0],column+movement[1]), null));
+                    }
+                    else if(board.getPiece(newPostion).getTeamColor() != board.getPiece(myPosition).getTeamColor()){
+                        moves.add(new ChessMove(myPosition, new ChessPosition(row+movement[0],column+movement[1]), null));
+                        movement[2]=0;
+                    }
+                }
+                else{movement[2]=0;}
+                movement[0]+=addRow;
+                movement[1]+=addColumn;
+            }while(movement[2]==1);
+        }
 
+
+        //moves.add(new ChessMove(myPosition, myPosition, null));
+    }
 
 }
