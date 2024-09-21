@@ -89,7 +89,7 @@ public class ChessPiece {
                 addMoves(board,myPosition,moves,knightMove);
                 break;
             case ROOK:
-                int[][] rookMove={{1,0,1}, {0,1,1},{-1,0,1},{0,-1,1},{1,-1,1}};
+                int[][] rookMove={{1,0,1}, {0,1,1},{-1,0,1},{0,-1,1}};
                 addMoves(board,myPosition,moves,rookMove);
 
                 break;
@@ -117,6 +117,9 @@ public class ChessPiece {
                     }
                     else if(board.getPiece(newPostion).getTeamColor() != board.getPiece(myPosition).getTeamColor()){
                         moves.add(new ChessMove(myPosition, new ChessPosition(row+movement[0],column+movement[1]), null));
+                        movement[2]=0;
+                    }
+                    else{
                         movement[2]=0;
                     }
                 }
