@@ -148,7 +148,16 @@ public class ChessPiece {
         //moves.add(new ChessMove(myPosition, myPosition, null));
     }
     private void pawnPromotion (ChessPosition myPosition, ChessPosition newPosition, ArrayList<ChessMove> moves, boolean isPromoted){
-        moves.add(new ChessMove(myPosition, newPosition, null));
+        if (isPromoted){
+            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+        }
+        else{
+            moves.add(new ChessMove(myPosition, newPosition, null));
+        }
+
     }
 
 }
