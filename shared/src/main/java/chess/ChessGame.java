@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -82,26 +81,34 @@ public class ChessGame {
                 }
             }
         }
+        return isInDanger(pos, teamColor);
+    }
+
+    //Check spot in danger
+    private boolean isInDanger(ChessPosition pos, TeamColor color){
+
         boolean isInCheck=false;
 
         int[][] queenMove={{1,0,1},{1,1,1},{0,1,1},{-1,1,1},{-1,0,1},{-1,-1,1},{0,-1,1},{1,-1,1}};
-        isInCheck=checkPieces(pos,teamColor,queenMove, ChessPiece.PieceType.QUEEN);
+        isInCheck= checkPiece(pos,color,queenMove, ChessPiece.PieceType.QUEEN);
 
         int[][] bishopMove={{1,1,1},{-1,1,1},{-1,-1,1},{1,-1,1}};
-        isInCheck=isInCheck || checkPieces(pos,teamColor,bishopMove, ChessPiece.PieceType.BISHOP);
+        isInCheck=isInCheck || checkPiece(pos,color,bishopMove, ChessPiece.PieceType.BISHOP);
 
         int[][] knightMove={{2,1,0},{1,2,0},{-1,2,0},{-2,1,0},{-2,-1,0},{-1,-2,0},{1,-2,0},{2,-1,0}};
-        isInCheck=isInCheck || checkPieces(pos,teamColor,knightMove, ChessPiece.PieceType.KNIGHT);
+        isInCheck=isInCheck || checkPiece(pos,color,knightMove, ChessPiece.PieceType.KNIGHT);
 
         int[][] rookMove={{1,0,1}, {0,1,1},{-1,0,1},{0,-1,1}};
-        isInCheck=isInCheck || checkPieces(pos,teamColor,rookMove, ChessPiece.PieceType.ROOK);
+        isInCheck=isInCheck || checkPiece(pos,color,rookMove, ChessPiece.PieceType.ROOK);
 
 
         return isInCheck;
     }
 
+
+
     //Checks the pieces on the board to see if any of them can move to the position of the king.
-    private boolean checkPieces (ChessPosition kingPosition, TeamColor color, int[][]movementType, ChessPiece.PieceType type){
+    private boolean checkPiece(ChessPosition kingPosition, TeamColor color, int[][]movementType, ChessPiece.PieceType type){
         int row = kingPosition.getRow();
         int column = kingPosition.getColumn();
         for (int[] movement:movementType){
@@ -110,7 +117,7 @@ public class ChessGame {
             do{
                 ChessPosition newPosition = new ChessPosition(row+movement[0],column+movement[1]);
                 if(newPosition.getRow()>0 && newPosition.getRow()<=8 && newPosition.getColumn()>0 && newPosition.getColumn()<=8){
-                    if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != board.getPiece(kingPosition).getTeamColor()){
+                    if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != board.getPiece(kingPosition).getTeamColor() && board.getPiece(newPosition).getPieceType() == type){
                         return true;
                     }
                     else if(board.getPiece(newPosition) != null){
