@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -73,8 +74,58 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition pos = new ChessPosition(-1, -1);
+        for(int i=1;i<9;i++){
+            for(int j=1;j<9;j++){
+                if(board.getPiece(new ChessPosition(i,j)) != null && board.getPiece(new ChessPosition(i, j)).getPieceType() == ChessPiece.PieceType.KING && board.getPiece(new ChessPosition(i, j)).getTeamColor() == teamColor){
+                    pos=new ChessPosition(i,j);
+                }
+            }
+        }
+        boolean isInCheck=false;
+
+        int[][] queenMove={{1,0,1},{1,1,1},{0,1,1},{-1,1,1},{-1,0,1},{-1,-1,1},{0,-1,1},{1,-1,1}};
+        isInCheck=checkPieces(pos,teamColor,queenMove, ChessPiece.PieceType.QUEEN);
+
+        int[][] bishopMove={{1,1,1},{-1,1,1},{-1,-1,1},{1,-1,1}};
+        isInCheck=isInCheck || checkPieces(pos,teamColor,bishopMove, ChessPiece.PieceType.BISHOP);
+
+        int[][] knightMove={{2,1,0},{1,2,0},{-1,2,0},{-2,1,0},{-2,-1,0},{-1,-2,0},{1,-2,0},{2,-1,0}};
+        isInCheck=isInCheck || checkPieces(pos,teamColor,knightMove, ChessPiece.PieceType.KNIGHT);
+
+        int[][] rookMove={{1,0,1}, {0,1,1},{-1,0,1},{0,-1,1}};
+        isInCheck=isInCheck || checkPieces(pos,teamColor,rookMove, ChessPiece.PieceType.ROOK);
+
+
+        return isInCheck;
     }
+
+    //Checks the pieces on the board to see if any of them can move to the position of the king.
+    private boolean checkPieces (ChessPosition kingPosition, TeamColor color, int[][]movementType, ChessPiece.PieceType type){
+        int row = kingPosition.getRow();
+        int column = kingPosition.getColumn();
+        for (int[] movement:movementType){
+            int addRow=movement[0];
+            int addColumn=movement[1];
+            do{
+                ChessPosition newPosition = new ChessPosition(row+movement[0],column+movement[1]);
+                if(newPosition.getRow()>0 && newPosition.getRow()<=8 && newPosition.getColumn()>0 && newPosition.getColumn()<=8){
+                    if(board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != board.getPiece(kingPosition).getTeamColor()){
+                        return true;
+                    }
+                    else if(board.getPiece(newPosition) != null){
+                        movement[2]=0;
+                    }
+                }
+                else{movement[2]=0;}
+                movement[0]+=addRow;
+                movement[1]+=addColumn;
+            }while(movement[2]==1);
+        }
+
+        return false;
+    }
+
 
     /**
      * Determines if the given team is in checkmate
