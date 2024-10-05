@@ -83,6 +83,9 @@ public class ChessGame {
                 }
             }
         }
+
+        System.out.println(moves + "\n");
+
         return moves;
 
     }
@@ -121,6 +124,7 @@ public class ChessGame {
                 }
             }
         }
+
         return isInDanger(pos, teamColor);
     }
 
@@ -148,7 +152,8 @@ public class ChessGame {
         if(color==TeamColor.BLACK){
             direction=-1;
         }
-        if (pos.getRow() <= 4.5 + direction*2.5) {System.out.println(pos);
+        if (pos.getRow() <= 7 && pos.getRow() >= 1) {
+
             if(pos.getColumn()<8){
                 ChessPiece pawnTest = board.getPiece(new ChessPosition(pos.getRow()+direction, pos.getColumn()+1));
                 if(pawnTest != null && pawnTest.getPieceType() == ChessPiece.PieceType.PAWN && pawnTest.getTeamColor() !=color){
@@ -205,6 +210,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+
         return isInCheck(teamColor) && allValidMoves(teamColor).isEmpty();
     }
 
