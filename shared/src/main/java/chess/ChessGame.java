@@ -48,18 +48,38 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return board.getPiece(startPosition).pieceMoves(board, startPosition);
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> oldMoves = (ArrayList<ChessMove>) board.getPiece(startPosition).pieceMoves(board, startPosition);
+        TeamColor color = board.getPiece(startPosition).getTeamColor();
+        for(ChessMove move : oldMoves){
+            ChessPiece capturedPiece=board.getPiece(move.getEndPosition());
+            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+            board.addPiece(move.getStartPosition(),null);
+            if(!isInCheck(color)){
+
+                moves.add(move);
+            }
+
+            board.addPiece(move.getStartPosition(), board.getPiece(move.getEndPosition()));
+            board.addPiece(move.getEndPosition(),capturedPiece);
+
+
+        }
+
+
+        return moves;
+        //only add valid moves
     }
 
-    public Collection<ChessMove> allValidMoves(){
+    public Collection<ChessMove> allValidMoves(TeamColor color){
 
         ArrayList<ChessMove> moves=new ArrayList<ChessMove>();
         for (int i=1;i<=8;i++){
             for (int j=1;j<=8;j++){
                 ChessPosition pos = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(pos);
-                if(piece != null){
-                    moves.addAll(piece.pieceMoves(board, pos));
+                if(piece != null && piece.getTeamColor() == color){
+                    moves.addAll(validMoves(pos));
                 }
             }
         }
@@ -109,8 +129,11 @@ public class ChessGame {
 
         boolean isInCheck=false;
 
+        int[][] kingMove={{1,0,0},{1,1,0},{0,1,0},{-1,1,0},{-1,0,0},{-1,-1,0},{0,-1,0},{1,-1,0}};
+        isInCheck= checkPiece(pos,color,kingMove, ChessPiece.PieceType.KING);
+
         int[][] queenMove={{1,0,1},{1,1,1},{0,1,1},{-1,1,1},{-1,0,1},{-1,-1,1},{0,-1,1},{1,-1,1}};
-        isInCheck= checkPiece(pos,color,queenMove, ChessPiece.PieceType.QUEEN);
+        isInCheck= isInCheck || checkPiece(pos,color,queenMove, ChessPiece.PieceType.QUEEN);
 
         int[][] bishopMove={{1,1,1},{-1,1,1},{-1,-1,1},{1,-1,1}};
         isInCheck=isInCheck || checkPiece(pos,color,bishopMove, ChessPiece.PieceType.BISHOP);
@@ -120,6 +143,27 @@ public class ChessGame {
 
         int[][] rookMove={{1,0,1}, {0,1,1},{-1,0,1},{0,-1,1}};
         isInCheck=isInCheck || checkPiece(pos,color,rookMove, ChessPiece.PieceType.ROOK);
+
+        int direction=1;
+        if(color==TeamColor.BLACK){
+            direction=-1;
+        }
+        if (pos.getRow() <= 4.5 + direction*2.5) {System.out.println(pos);
+            if(pos.getColumn()<8){
+                ChessPiece pawnTest = board.getPiece(new ChessPosition(pos.getRow()+direction, pos.getColumn()+1));
+                if(pawnTest != null && pawnTest.getPieceType() == ChessPiece.PieceType.PAWN && pawnTest.getTeamColor() !=color){
+                    isInCheck=true;
+                }
+            }
+
+            if(pos.getColumn()>1){
+                ChessPiece pawnTest = board.getPiece(new ChessPosition(pos.getRow()+direction, pos.getColumn()-1));
+                if(pawnTest != null && pawnTest.getPieceType() == ChessPiece.PieceType.PAWN && pawnTest.getTeamColor() !=color){
+                    isInCheck=true;
+                }
+            }
+
+        }
 
 
         return isInCheck;
@@ -161,7 +205,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return isInCheck(teamColor) && allValidMoves() == null;
+        return isInCheck(teamColor) && allValidMoves(teamColor).isEmpty();
     }
 
     /**
@@ -172,7 +216,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        return !isInCheck(teamColor) && allValidMoves() == null;
+        return !isInCheck(teamColor) && allValidMoves(teamColor).isEmpty();
     }
 
     /**
