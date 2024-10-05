@@ -152,8 +152,8 @@ public class ChessGame {
         if(color==TeamColor.BLACK){
             direction=-1;
         }
-        if (pos.getRow() <= 7 && pos.getRow() >= 1) {
-
+        if (pos.getRow() <= 7.5-0.5*direction && pos.getRow() >= 1.5-0.5*direction) {
+            System.out.println(pos);
             if(pos.getColumn()<8){
                 ChessPiece pawnTest = board.getPiece(new ChessPosition(pos.getRow()+direction, pos.getColumn()+1));
                 if(pawnTest != null && pawnTest.getPieceType() == ChessPiece.PieceType.PAWN && pawnTest.getTeamColor() !=color){
