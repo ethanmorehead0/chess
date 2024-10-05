@@ -32,6 +32,14 @@ public class ChessGame {
         teamTurn = team;
     }
 
+    public void changeTeamTurn(){
+        if(teamTurn==TeamColor.WHITE){
+            teamTurn=TeamColor.BLACK;
+        }else{
+            teamTurn=TeamColor.WHITE;
+        }
+    }
+
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
@@ -84,8 +92,6 @@ public class ChessGame {
             }
         }
 
-        System.out.println(moves + "\n");
-
         return moves;
 
     }
@@ -97,16 +103,41 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if(move.getPromotionPiece()!=null){
-            board.addPiece(move.getEndPosition(), new ChessPiece(board.getPiece(move.getStartPosition()).getTeamColor(), move.getPromotionPiece()));
+        /*if(allValidMoves(board.getPiece(move.getStartPosition()).getTeamColor())==move){
+            throw new InvalidMoveException();
+        }*/
+        ChessPiece startPiece = board.getPiece(move.getStartPosition());
+        if(startPiece == null){
+            throw new InvalidMoveException("No piece selected.");
         }
-        else{
-            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        else if(startPiece.getTeamColor() != teamTurn){
+            throw new InvalidMoveException("Out of turn.");
         }
-            board.addPiece(move.getStartPosition(),null);
-        if(board.getPiece(move.getStartPosition()) != null && board.getPiece(move.getStartPosition()).getTeamColor() == teamTurn && isInCheck(teamTurn)){
+        else if(!allValidMoves(startPiece.getTeamColor()).contains(move)){
+            throw new InvalidMoveException("Invalid move");
+        }else {
+
+
+            if(move.getPromotionPiece()!=null){
+                ChessPiece promotionPiece = new ChessPiece(teamTurn, move.getPromotionPiece());
+                board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+                board.removePiece(move.getStartPosition());
+
+                board.addPiece(move.getEndPosition(), promotionPiece);
+            }
+            else{
+                board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+            }
+            board.removePiece(move.getStartPosition());
+            System.out.println(board);
+        }
+
+
+
+        if(isInCheck(teamTurn)){
             throw new InvalidMoveException("Can not move into check.");
         }
+        changeTeamTurn();
     }
 
     /**
@@ -198,7 +229,6 @@ public class ChessGame {
                 movement[1]+=addColumn;
             }while(movement[2]==1);
         }
-
         return false;
     }
 
