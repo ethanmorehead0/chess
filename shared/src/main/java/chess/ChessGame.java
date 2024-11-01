@@ -80,8 +80,8 @@ public class ChessGame {
     }
 
     public Collection<ChessMove> allValidMoves(TeamColor color){
-
         ArrayList<ChessMove> moves=new ArrayList<ChessMove>();
+
         for (int i=1;i<=8;i++){
             for (int j=1;j<=8;j++){
                 ChessPosition pos = new ChessPosition(i, j);
@@ -107,17 +107,13 @@ public class ChessGame {
             throw new InvalidMoveException();
         }*/
         ChessPiece startPiece = board.getPiece(move.getStartPosition());
-        if(startPiece == null){
+        if (startPiece == null) {
             throw new InvalidMoveException("No piece selected.");
-        }
-        else if(startPiece.getTeamColor() != teamTurn){
+        } else if (startPiece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("Out of turn.");
-        }
-        else if(!allValidMoves(startPiece.getTeamColor()).contains(move)){
+        } else if (!allValidMoves(startPiece.getTeamColor()).contains(move)) {
             throw new InvalidMoveException("Invalid move");
-        }else {
-
-
+        } else {
             if(move.getPromotionPiece()!=null){
                 ChessPiece promotionPiece = new ChessPiece(teamTurn, move.getPromotionPiece());
                 board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
