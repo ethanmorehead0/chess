@@ -7,10 +7,14 @@ import exception.ResponseException;
 import java.net.http.WebSocket;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.UUID;
 
 public class Server {
 
-    private ArrayList<String> users = new ArrayList<>();
+    //temporary
+    private object user{}
+
+    private ArrayList<user> users = new ArrayList<>();
     private ArrayList<ChessGame> games = new ArrayList<>();
 
     //public Server(Server service) {
@@ -48,6 +52,9 @@ public class Server {
         return Spark.port();
     }
 
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
+    }
 
     public int port() {
         return Spark.port();
@@ -85,7 +92,7 @@ public class Server {
 
     private Object ListGames(Request req, Response res) {
         res.type("application/json");
-        return new Gson().toJson(Map.of("user", users));
+        return new Gson().toJson(Map.of("game", games));
     }
 
     private Object JoinGame(Request req, Response res) {
