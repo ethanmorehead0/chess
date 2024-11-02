@@ -3,7 +3,7 @@ package server;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import spark.*;
-
+import exception.ResponseException;
 import java.net.http.WebSocket;
 import java.util.ArrayList;
 import java.util.Map;
@@ -23,21 +23,23 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        try {
+        //try {
 
             Spark.post("/user", this::Registration);
-            Spark.delete("/session", this::Logout);
-            Spark.delete("/db", this::Clear);
-            Spark.put("/game", this::CreateGame);
-            Spark.post("/game", this::JoinGame);
             Spark.post("/session", this::Login);
+            Spark.delete("/session", this::Logout);
             Spark.get("/game", this::ListGames);
-            Spark.get("/", this::Error);
+            Spark.post("/game", this::JoinGame);
+            Spark.put("/game", this::CreateGame);
+            Spark.delete("/db", this::Clear);
 
-        }catch(ArrayIndexOutOfBoundsException | NumberFormatException ex) {
+            Spark.get("/", this::Error);
+            Spark.exception(ResponseException.class, this::exceptionHandler);
+
+        /*}catch(ArrayIndexOutOfBoundsException | NumberFormatException ex) {
             System.err.println("Specify the port number as a command line parameter");
             return 404;
-        }
+        }*/
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
@@ -45,12 +47,55 @@ public class Server {
         Spark.awaitInitialization();
         return Spark.port();
     }
+
+
+    public int port() {
+        return Spark.port();
+    }
+
+
+
+    private void exceptionHandler(ResponseException ex, Request req, Response res) {
+        res.status(ex.StatusCode());
+    }
+
     private Object Registration(Request req, Response res) {
         res.type("application/json");
         /*var pet = new Gson().fromJson(req.body(), Pet.class);
         pet = service.addPet(pet);
         webSocketHandler.makeNoise(user.name(), user.sound());
         return new Gson().toJson(user);*/
+
+
+        //res.status(404);
+        return new Gson().toJson(Map.of("", users));
+    }
+
+    private Object Login(Request req, Response res) {
+        res.type("application/json");
+
+        return new Gson().toJson(Map.of("user", users));
+        //return users;
+    }
+
+    private Object Logout(Request req, Response res) {
+        users.remove(req.params(":user"));
+        return "";
+    }
+
+    private Object ListGames(Request req, Response res) {
+        res.type("application/json");
+        return new Gson().toJson(Map.of("user", users));
+    }
+
+    private Object JoinGame(Request req, Response res) {
+
+        res.type("application/json");
+        return new Gson().toJson(Map.of("user", users));
+    }
+
+    private Object CreateGame(Request req, Response res) {
+        res.type("application/json");
         return new Gson().toJson(Map.of("user", users));
     }
 
@@ -59,32 +104,10 @@ public class Server {
         //res.status(404);
         return "";
     }
-    private Object Logout(Request req, Response res) {
-        users.remove(req.params(":user"));
-        return "";
-    }
 
-    private Object CreateGame(Request req, Response res) {
-        res.type("application/json");
-        return new Gson().toJson(Map.of("user", users));
-    }
 
-    private Object JoinGame(Request req, Response res) {
-        res.type("application/json");
-        return new Gson().toJson(Map.of("user", users));
-    }
-
-    private Object Login(Request req, Response res) {
-        res.type("application/json");
-        return new Gson().toJson(Map.of("user", users));
-    }
-
-    private Object ListGames(Request req, Response res) {
-        res.type("application/json");
-        return new Gson().toJson(Map.of("user", users));
-    }
     private Object Error(Request req, Response res) {
-
+        //res.status(404);
         return true;
     }
     public void stop() {
