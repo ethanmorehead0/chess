@@ -1,6 +1,8 @@
 package service;
 import dataaccess.DataAccess;
 import exception.ResponseException;
+import model.AuthData;
+import model.LoginRequest;
 
 
 public class ChessService {
@@ -18,8 +20,12 @@ public class ChessService {
     }
 
 
-    //AuthService
 
+    //AuthService
+    public AuthData Login(LoginRequest req) throws ResponseException {
+        AuthData auth = dataAccess.login();
+        return auth;
+    }
 
 
     //GameService

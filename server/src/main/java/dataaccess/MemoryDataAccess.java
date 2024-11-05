@@ -1,6 +1,5 @@
 package dataaccess;
 
-import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -13,9 +12,19 @@ public class MemoryDataAccess implements DataAccess{
     private ArrayList<GameData> games = new ArrayList<>();
     private ArrayList<AuthData> Authorization = new ArrayList<>();
 
+    public AuthData login(){
+        AuthData auth= new AuthData("temp", "temp");
+
+        //implement
+
+
+        return auth;
+    }
+
     public void clear() {
         users.clear();
         games.clear();
+        Authorization.clear();
     };
 
 }

@@ -1,13 +1,12 @@
 package server;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.MemoryDataAccess;
 import model.*;
 import spark.*;
 import exception.ResponseException;
 import service.*;
-import java.net.http.WebSocket;
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
@@ -81,10 +80,12 @@ public class Server {
     }
 
     private Object Login(Request req, Response res) throws ResponseException{
-        res.type("application/json");
+        var serializer = new Gson();
+        LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
 
-        return new Gson().toJson(Map.of("user", users));
-        //return users;
+        AuthData auth = service.Login(loginRequest);
+
+        return serializer.toJson(auth);
     }
 
     private Object Logout(Request req, Response res) throws ResponseException {
@@ -100,7 +101,7 @@ public class Server {
     private Object JoinGame(Request req, Response res)throws ResponseException {
 
         res.type("application/json");
-        return new Gson().toJson(Map.of("user", users));
+        return "";
     }
 
     private Object CreateGame(Request req, Response res)throws ResponseException {
