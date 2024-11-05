@@ -11,8 +11,6 @@ public class Main {
             }
             var server = new Server();
             port = server.run(port);
-            //var server = new Server().run(port);
-            //port = server.port();
             System.out.printf("Server started on port %d%n", port);
             return;
         } catch (Throwable ex) {

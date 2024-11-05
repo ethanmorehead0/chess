@@ -2,6 +2,7 @@ package server;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import model.*;
 import spark.*;
 import exception.ResponseException;
 import java.net.http.WebSocket;
@@ -11,15 +12,11 @@ import java.util.UUID;
 
 public class Server {
 
-    //temporary
-    private object user{}
 
-    private ArrayList<user> users = new ArrayList<>();
-    private ArrayList<ChessGame> games = new ArrayList<>();
+    private ArrayList<UserData> users = new ArrayList<>();
+    private ArrayList<GameData> games = new ArrayList<>();
+    private ArrayList<AuthData> Authorization = new ArrayList<>();
 
-    //public Server(Server service) {
-    //    this.service = service;
-    //}
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -107,9 +104,9 @@ public class Server {
     }
 
     private Object Clear(Request req, Response res) {
-        users.remove(req.params(":user"));
-        //res.status(404);
-        return "";
+        res = clear(req);
+
+        return res;
     }
 
 
