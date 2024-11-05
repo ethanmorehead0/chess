@@ -2,9 +2,11 @@ package server;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import dataaccess.MemoryDataAccess;
 import model.*;
 import spark.*;
 import exception.ResponseException;
+import service.*;
 import java.net.http.WebSocket;
 import java.util.ArrayList;
 import java.util.Map;
@@ -16,6 +18,9 @@ public class Server {
     private ArrayList<UserData> users = new ArrayList<>();
     private ArrayList<GameData> games = new ArrayList<>();
     private ArrayList<AuthData> Authorization = new ArrayList<>();
+
+    private final ChessService service = new ChessService(new MemoryDataAccess());
+
 
 
     public int run(int desiredPort) {
@@ -63,7 +68,7 @@ public class Server {
         res.status(ex.StatusCode());
     }
 
-    private Object Registration(Request req, Response res) {
+    private Object Registration(Request req, Response res) throws ResponseException {
         res.type("application/json");
         /*var pet = new Gson().fromJson(req.body(), Pet.class);
         pet = service.addPet(pet);
@@ -75,38 +80,39 @@ public class Server {
         return new Gson().toJson(Map.of("", users));
     }
 
-    private Object Login(Request req, Response res) {
+    private Object Login(Request req, Response res) throws ResponseException{
         res.type("application/json");
 
         return new Gson().toJson(Map.of("user", users));
         //return users;
     }
 
-    private Object Logout(Request req, Response res) {
+    private Object Logout(Request req, Response res) throws ResponseException {
         users.remove(req.params(":user"));
         return "";
     }
 
-    private Object ListGames(Request req, Response res) {
+    private Object ListGames(Request req, Response res)throws ResponseException {
         res.type("application/json");
         return new Gson().toJson(Map.of("game", games));
     }
 
-    private Object JoinGame(Request req, Response res) {
+    private Object JoinGame(Request req, Response res)throws ResponseException {
 
         res.type("application/json");
         return new Gson().toJson(Map.of("user", users));
     }
 
-    private Object CreateGame(Request req, Response res) {
+    private Object CreateGame(Request req, Response res)throws ResponseException {
         res.type("application/json");
         return new Gson().toJson(Map.of("user", users));
     }
 
-    private Object Clear(Request req, Response res) {
-        res = clear(req);
+    private Object Clear(Request req, Response res) throws ResponseException {
+        service.Clear();
+        //res.status(200);
 
-        return res;
+        return "";
     }
 
 

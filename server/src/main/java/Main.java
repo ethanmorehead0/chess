@@ -1,5 +1,9 @@
 import chess.*;
+import dataaccess.DataAccess;
+import dataaccess.MemoryDataAccess;
 import server.*;
+import service.ChessService;
+
 public class Main {
     public static void main(String[] args) {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
@@ -9,6 +13,11 @@ public class Main {
             if (args.length >= 1) {
                 port = Integer.parseInt(args[0]);
             }
+
+            DataAccess dataAccess = new MemoryDataAccess();
+
+
+            var service = new ChessService(dataAccess);
             var server = new Server();
             port = server.run(port);
             System.out.printf("Server started on port %d%n", port);
