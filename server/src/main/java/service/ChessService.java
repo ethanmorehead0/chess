@@ -26,7 +26,12 @@ public class ChessService {
         return auth;
     }
     public void Logout(LogoutRequest req) throws ResponseException {
-        dataAccess.deleteAuth();
+        if(req==null){
+            throw new ResponseException(500, "no user logged in");
+        }else{
+            dataAccess.deleteAuth(req.auth());
+
+        }
     }
 
 

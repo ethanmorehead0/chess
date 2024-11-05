@@ -9,6 +9,7 @@ import model.UserData;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class MemoryDataAccess implements DataAccess{
     private ArrayList<UserData> users = new ArrayList<>();
@@ -22,11 +23,11 @@ public class MemoryDataAccess implements DataAccess{
         Authorization.clear();
     };
 
-    public void createUser() throws ResponseException{
+    public void createUser(UserData user) throws ResponseException{
 
     };
-    public UserData getUser() throws ResponseException{
-        return new UserData();
+    public UserData getUser(String username) throws ResponseException{
+        return new UserData("a","a","a");
     };
     public void createGame() throws ResponseException{
 
@@ -34,19 +35,19 @@ public class MemoryDataAccess implements DataAccess{
     public GameData getGame() throws ResponseException{
         return new GameData(0, "a", "b", "c", new ChessGame());
     };
-    public AllGamesData listGames() throws ResponseException{
-        return new AllGamesData(0, "a", "b", "c", new ChessGame());
+    public Collection<GameData> listGames() throws ResponseException{
+        return games;
     };
     public void updateGame() throws ResponseException{
 
     };
-    public void createAuth() throws ResponseException{
+    public void createAuth(AuthData auth) throws ResponseException{
 
     };
     public AuthData getAuth() throws ResponseException{
         return new AuthData("a", "b");
     };
-    public void deleteAuth() throws ResponseException{
+    public void deleteAuth(String authToken) throws ResponseException{
 
     };
 
