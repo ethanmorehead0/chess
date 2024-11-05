@@ -11,7 +11,7 @@ public interface DataAccess {
     UserData getUser(String username) throws ResponseException;
     void createGame() throws ResponseException;
     GameData getGame() throws ResponseException;
-    Collection<GameData> listGames() throws ResponseException;
+    Collection<GameData> listGames(String auth) throws ResponseException;
     void updateGame() throws ResponseException;
     void createAuth(AuthData auth) throws ResponseException;
     AuthData getAuth() throws ResponseException;

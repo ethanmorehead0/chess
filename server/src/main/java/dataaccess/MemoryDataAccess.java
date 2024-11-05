@@ -35,7 +35,7 @@ public class MemoryDataAccess implements DataAccess{
     public GameData getGame() throws ResponseException{
         return new GameData(0, "a", "b", "c", new ChessGame());
     };
-    public Collection<GameData> listGames() throws ResponseException{
+    public Collection<GameData> listGames(String auth) throws ResponseException{
         return games;
     };
     public void updateGame() throws ResponseException{

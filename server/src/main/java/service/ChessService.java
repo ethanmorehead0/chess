@@ -3,6 +3,8 @@ import dataaccess.DataAccess;
 import exception.ResponseException;
 import model.*;
 
+import java.util.Collection;
+
 
 public class ChessService {
 
@@ -20,7 +22,6 @@ public class ChessService {
 
 
 
-    //AuthService
     public AuthData Login(LoginRequest req) throws ResponseException {
         AuthData auth = dataAccess.login();
         return auth;
@@ -35,12 +36,21 @@ public class ChessService {
     }
 
 
-    //GameService
+    public AuthData register(UserData req) throws ResponseException {
+        return new AuthData("a","b");
+    }
 
+    public Collection<GameData> ListGames(String auth) throws ResponseException {
+        return dataAccess.listGames(auth);
+    }
 
+    public String CreateGame() throws ResponseException{
+        return "gameID";
+    }
 
+    public void JoinGame() throws ResponseException{
 
-    //UserService
+    }
 
 
 
