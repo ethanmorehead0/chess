@@ -29,17 +29,21 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
         //try {
+        Spark.get("/error", this::Error);
+        Spark.exception(ResponseException.class, this::exceptionHandler);
+        Spark.notFound((req, res) -> {
+            var msg = String.format("[%s] %s not found", req.requestMethod(), req.pathInfo());
+            return errorHandler(new Exception(msg), req, res);
+        });
 
-            Spark.post("/user", this::Registration);
-            Spark.post("/session", this::Login);
-            Spark.delete("/session", this::Logout);
-            Spark.get("/game", this::ListGames);
-            Spark.post("/game", this::JoinGame);
-            Spark.put("/game", this::CreateGame);
-            Spark.delete("/db", this::Clear);
+        Spark.post("/user", this::Registration);
+        Spark.post("/session", this::Login);
+        Spark.delete("/session", this::Logout);
+        Spark.get("/game", this::ListGames);
+        Spark.post("/game", this::JoinGame);
+        Spark.put("/game", this::CreateGame);
+        Spark.delete("/db", this::Clear);
 
-            Spark.get("/", this::Error);
-            Spark.exception(ResponseException.class, this::exceptionHandler);
 
         /*}catch(ArrayIndexOutOfBoundsException | NumberFormatException ex) {
             System.err.println("Specify the port number as a command line parameter");
@@ -63,20 +67,40 @@ public class Server {
 
 
 
-    private void exceptionHandler(ResponseException ex, Request req, Response res) {
+    private Object exceptionHandler(ResponseException ex, Request req, Response res) {
+        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", ex.getMessage()), "success", false));
+        res.type("application/json");
+        System.out.println(ex.StatusCode());
         res.status(ex.StatusCode());
+        res.body(body);
+        return body;
+    }
+    private Object throwError(Request req, Response res) {
+        throw new RuntimeException("Server on fire");
     }
 
-    private Object Registration(Request req, Response res) throws ResponseException {
+    public Object errorHandler(Exception e, Request req, Response res) {
+        var body = new Gson().toJson(Map.of("message", String.format("Error: %s", e.getMessage()), "success", false));
         res.type("application/json");
-        /*var pet = new Gson().fromJson(req.body(), Pet.class);
-        pet = service.addPet(pet);
-        webSocketHandler.makeNoise(user.name(), user.sound());
-        return new Gson().toJson(user);*/
+        res.status(500);
+        res.body(body);
+        return body;
+    }
+    private Object Error(Request req, Response res) {
+        res.status(404);
+        return true;
+    }
 
 
-        //res.status(404);
-        return new Gson().toJson(Map.of("", users));
+
+
+
+    private Object Registration(Request req, Response res) throws ResponseException {
+        var serializer = new Gson();
+        UserData userData = serializer.fromJson(req.body(), UserData.class);
+        AuthData auth = service.register(userData);
+
+        return serializer.toJson(auth);
     }
 
     private Object Login(Request req, Response res) throws ResponseException{
@@ -89,16 +113,15 @@ public class Server {
     }
 
     private Object Logout(Request req, Response res) throws ResponseException {
-        var serializer = new Gson();
-        LogoutRequest logoutRequest = serializer.fromJson(req.body(), LogoutRequest.class);
+        String auth = req.headers("Authorization");
 
-        service.Logout(logoutRequest);
+        service.Logout(auth);
 
         return "";
     }
 
     private Object ListGames(Request req, Response res)throws ResponseException {
-        res.type("application/json");
+        //res.type("application/json");
         return new Gson().toJson(Map.of("game", games));
     }
 
@@ -121,10 +144,7 @@ public class Server {
     }
 
 
-    private Object Error(Request req, Response res) {
-        //res.status(404);
-        return true;
-    }
+
     public void stop() {
         Spark.stop();
         Spark.awaitStop();

@@ -14,8 +14,8 @@ public interface DataAccess {
     Collection<GameData> listGames(String auth) throws ResponseException;
     void updateGame() throws ResponseException;
     void createAuth(AuthData auth) throws ResponseException;
-    AuthData getAuth() throws ResponseException;
-    void deleteAuth(String authToken) throws ResponseException;
+    AuthData getAuth(String auth) throws ResponseException;
+    void deleteAuth(AuthData authToken) throws ResponseException;
 
 
 

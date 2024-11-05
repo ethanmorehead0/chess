@@ -24,10 +24,17 @@ public class MemoryDataAccess implements DataAccess{
     };
 
     public void createUser(UserData user) throws ResponseException{
-
+        users.add(user);
     };
     public UserData getUser(String username) throws ResponseException{
-        return new UserData("a","a","a");
+        if(users!=null) {
+            for (UserData user : users) {
+                if (user.username().equals(username)) {
+                    return user;
+                }
+            }
+        }
+        return null;
     };
     public void createGame() throws ResponseException{
 
@@ -42,13 +49,22 @@ public class MemoryDataAccess implements DataAccess{
 
     };
     public void createAuth(AuthData auth) throws ResponseException{
-
+        Authorization.add(auth);
     };
-    public AuthData getAuth() throws ResponseException{
-        return new AuthData("a", "b");
+    public AuthData getAuth(String auth) throws ResponseException{
+        if(Authorization!=null) {
+            for (AuthData authorization : Authorization) {
+                if (authorization.authToken().equals(auth)) {
+                    return authorization;
+                }
+            }
+        }
+        return null;
     };
-    public void deleteAuth(String authToken) throws ResponseException{
-
+    public void deleteAuth(AuthData auth) throws ResponseException{
+        if(Authorization!=null) {
+            Authorization.removeIf(authorization -> authorization.equals(auth));
+        }
     };
 
 
