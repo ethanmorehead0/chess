@@ -89,7 +89,11 @@ public class Server {
     }
 
     private Object Logout(Request req, Response res) throws ResponseException {
-        users.remove(req.params(":user"));
+        var serializer = new Gson();
+        LogoutRequest logoutRequest = serializer.fromJson(req.body(), LogoutRequest.class);
+
+        service.Logout(logoutRequest);
+
         return "";
     }
 
