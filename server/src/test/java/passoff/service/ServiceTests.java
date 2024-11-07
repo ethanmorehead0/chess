@@ -14,6 +14,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.ChessService;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -21,6 +25,7 @@ public class ServiceTests {
     private static ChessService service;
     private UserData defaultUser=new UserData("TestName","TestPassword","TestEmail@test.com");
     private AuthData defaultUserAuth;
+    private GameData defaultGame;
 
     @BeforeAll
     public static void init() {
@@ -34,6 +39,7 @@ public class ServiceTests {
 
         //one user already logged in
         defaultUserAuth = service.register(defaultUser);
+        service.CreateGame(defaultUserAuth.authToken(),"defaultGame" );
     }
 
     @Test
@@ -50,12 +56,33 @@ public class ServiceTests {
     @Order(1)
     @DisplayName("Clear")
     public void clear() throws ResponseException {
-
+        service.Clear();
+        Assertions.assertThrows(ResponseException.class, () -> service.Login(new LoginRequest(defaultUser.username(),defaultUser.password())));
+        service.register(new UserData("TestName","TestPassword","TestEmail@test.com"));
+        service.Login(new LoginRequest(defaultUser.username(),defaultUser.password()));
+        var games=service.ListGames(defaultUserAuth.authToken());
+        Assertions.assertTrue(games.isEmpty());
     }
     @Test
     @Order(2)
     @DisplayName("Multiple Clears")
-    public void multipleClears() {
+    public void multipleClears() throws ResponseException{
+        UserData user = new UserData("user","password","user@test.com");
+        AuthData auth= service.register(user);
+        service.CreateGame(auth.authToken(),"gameName");
+
+        service.Clear();
+        Assertions.assertThrows(ResponseException.class, () -> service.Login(new LoginRequest(defaultUser.username(),defaultUser.password())));
+        service.register(new UserData("TestName","TestPassword","TestEmail@test.com"));
+        service.Login(new LoginRequest(defaultUser.username(),defaultUser.password()));
+        var games=service.ListGames(defaultUserAuth.authToken());
+        Assertions.assertTrue(games.isEmpty());
+
+        Assertions.assertThrows(ResponseException.class, () -> service.Login(new LoginRequest(user.username(),user.password())));
+        service.register(new UserData("user","password","user@test.com"));
+        service.Login(new LoginRequest(user.username(),user.password()));
+        games=service.ListGames(auth.authToken());
+        Assertions.assertTrue(games.isEmpty());
 
     }
 
@@ -129,35 +156,76 @@ public class ServiceTests {
     @Test
     @Order(11)
     @DisplayName("List Games")
-    public void listGames() {
+    public void listGames() throws ResponseException{
+        var games = service.ListGames(defaultUserAuth.authToken());
+        Assertions.assertNotNull(games);
 
     }
 
     @Test
     @Order(12)
-    @DisplayName("List Games Empty")
-    public void ListGamesEmpty() {
+    @DisplayName("List Games Invalid Auth")
+    public void ListGamesEmpty() throws ResponseException {
+
+        Assertions.assertThrows(ResponseException.class,() -> service.ListGames("InvalidAuth"), "Invalid Auth Token");
 
     }
 
     @Test
     @Order(13)
     @DisplayName("Create Game")
-    public void createGame() {
+    public void createGame() throws ResponseException{
+        UserData user=new UserData("name","password","email@test.com");
+        AuthData userAuth=service.register(user);
 
+        CreateGameResult CreateGameID = service.CreateGame(userAuth.authToken(),"NewGame");
+        Assertions.assertNotNull(CreateGameID);
+        Assertions.assertNotNull(service.ListGames(userAuth.authToken()));
     }
 
     @Test
     @Order(14)
     @DisplayName("Invalid Create Game Request")
-    public void InvalidCreateGame() {
-
+    public void InvalidCreateGame() throws ResponseException{
+        Assertions.assertThrows(ResponseException.class, () -> service.CreateGame("Invalid Auth", "Game"));
     }
 
     @Test
     @Order(15)
     @DisplayName("Join Game")
-    public void joinGame() {
+    public void joinGame() throws ResponseException{
+        UserData newUser= new UserData("newUser","newPassword", "newUser@new.com");
+        AuthData ResultAuthData = service.register(newUser);
+        service.JoinGame(ResultAuthData.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,defaultGame.gameID()));
+        Assertions.assertNotNull(service.ListGames(ResultAuthData.authToken()));
+    }
+    @Test
+    @Order(16)
+    @DisplayName("Join Game - no game")
+    public void joinNoGame() throws ResponseException{
+        UserData newUser= new UserData("newUser","newPassword", "newUser@new.com");
+        AuthData ResultAuthData = service.register(newUser);
+        Assertions.assertThrows(ResponseException.class, () -> service.JoinGame(ResultAuthData.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,-1)));
+    }
+    @Test
+    @Order(17)
+    @DisplayName("Join Game - same user")
+    public void joinOwnGame() {
+        Assertions.assertThrows(ResponseException.class, () -> service.JoinGame(defaultUserAuth.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,-1)));
+    }
+
+    @Test
+    @Order(18)
+    @DisplayName("Join Game - spot taken")
+    public void spotTaken() throws ResponseException{
+        UserData newUser= new UserData("newUser","newPassword", "newUser@new.com");
+        AuthData ResultAuthData = service.register(newUser);
+        service.JoinGame(ResultAuthData.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,defaultGame.gameID()));
+
+        UserData newUser1= new UserData("newUser1","newPassword1", "newUser1@new.com");
+        AuthData ResultAuthData1 = service.register(newUser1);
+        service.JoinGame(ResultAuthData1.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,defaultGame.gameID()));
+
 
     }
 

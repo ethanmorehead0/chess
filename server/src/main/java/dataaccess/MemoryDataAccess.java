@@ -21,10 +21,10 @@ public class MemoryDataAccess implements DataAccess{
         Authorization.clear();
     };
 
-    public void createUser(UserData user) throws ResponseException{
+    public void createUser(UserData user) {
         users.add(user);
     };
-    public UserData getUser(String username) throws ResponseException{
+    public UserData getUser(String username) {
         if(users!=null) {
             for (UserData user : users) {
                 if (user.username().equals(username)) {
@@ -34,30 +34,30 @@ public class MemoryDataAccess implements DataAccess{
         }
         return null;
     };
-    public GameData createGame(String username, String gameName) throws ResponseException{
+    public GameData createGame(String username, String gameName) {
 
         GameData game = new GameData(gameNumber, username, null, gameName, new ChessGame());
         gameNumber+=1;
         games.add(game);
         return game;
     };
-    public CreateGameResult getGame(int game) throws ResponseException{
+    public CreateGameResult getGame(int game) {
 
         return new CreateGameResult(game);
         //return new GameData(1, "a", "b", "c", new ChessGame());
     };
-    public Collection<GameData> listGames(String auth) throws ResponseException{
+    public Collection<GameData> listGames(String auth) {
         return games;
     };
 
-    public void updateGame() throws ResponseException{
+    public void updateGame() {
 
     };
 
-    public void createAuth(AuthData auth) throws ResponseException{
+    public void createAuth(AuthData auth) {
         Authorization.add(auth);
     };
-    public AuthData getAuth(String auth) throws ResponseException{
+    public AuthData getAuth(String auth) {
         if(Authorization!=null) {
             for (AuthData authorization : Authorization) {
                 if (authorization.authToken().equals(auth)) {
@@ -67,7 +67,7 @@ public class MemoryDataAccess implements DataAccess{
         }
         return null;
     };
-    public void deleteAuth(AuthData auth) throws ResponseException{
+    public void deleteAuth(AuthData auth) {
         if(Authorization!=null) {
             Authorization.removeIf(authorization -> authorization.equals(auth));
         }

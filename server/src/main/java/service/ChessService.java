@@ -67,12 +67,12 @@ public class ChessService {
         return dataAccess.listGames(auth);
     }
 
-    public CreateGameResult CreateGame(String auth, CreateGameRequest req) throws ResponseException{
-        dataAccess.createGame("name", req.name());
+    public CreateGameResult CreateGame(String auth, String name) throws ResponseException{
+        dataAccess.createGame("name", name);
         return new CreateGameResult(123);
     }
 
-    public void JoinGame() throws ResponseException{
+    public void JoinGame(String auth, JoinGameRequest req) throws ResponseException{
 
     }
 
