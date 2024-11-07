@@ -1,4 +1,5 @@
 package service;
+import chess.ChessGame;
 import dataaccess.DataAccess;
 import exception.ResponseException;
 import model.*;
@@ -64,15 +65,33 @@ public class ChessService {
     }
 
     public Collection<GameData> ListGames(String auth) throws ResponseException {
+        /*if(dataAccess.getAuth(auth)==null){
+            throw new ResponseException(401, "Error: unauthorized");
+        }*/
+
         return dataAccess.listGames(auth);
     }
 
-    public CreateGameResult CreateGame(String auth, String name) throws ResponseException{
-        dataAccess.createGame("name", name);
-        return new CreateGameResult(123);
+    public CreateGameResult CreateGame(String authToken, String name) throws ResponseException{
+        AuthData auth = dataAccess.getAuth(authToken);
+        if(auth==null){
+            throw new ResponseException(401,"Error: unauthorized");
+        }
+        return new CreateGameResult(dataAccess.createGame(auth.username(), name));
     }
 
-    public void JoinGame(String auth, JoinGameRequest req) throws ResponseException{
+    public void JoinGame(String authToken, JoinGameRequest req) throws ResponseException{
+        AuthData auth = dataAccess.getAuth(authToken);
+        if(auth==null){
+            throw new ResponseException(401,"Error: unauthorized");
+        }
+        GameData data = dataAccess.getGame(req.gameID());
+        if(data==null || (req.color() == ChessGame.TeamColor.BLACK && data.blackUsername()!=null) || (req.color() == ChessGame.TeamColor.WHITE && data.whiteUsername()!=null)){
+            throw new ResponseException(403,"Error: already taken");
+        }
+        GameData newData= new GameData(data.gameID(),data.whiteUsername(),auth.username(),data.gameName(),data.game());
+
+        dataAccess.updateGame(authToken,newData);
 
     }
 

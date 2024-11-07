@@ -1,22 +1,16 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import dataaccess.MemoryDataAccess;
 import model.*;
 import spark.*;
 import exception.ResponseException;
 import service.*;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Server {
-
-
-    private ArrayList<UserData> users = new ArrayList<>();
-    private ArrayList<GameData> games = new ArrayList<>();
-    private ArrayList<AuthData> Authorization = new ArrayList<>();
 
     private final ChessService service = new ChessService(new MemoryDataAccess());
 
@@ -40,8 +34,8 @@ public class Server {
         Spark.post("/session", this::Login);
         Spark.delete("/session", this::Logout);
         Spark.get("/game", this::ListGames);
-        Spark.post("/game", this::JoinGame);
-        Spark.put("/game", this::CreateGame);
+        Spark.put("/game", this::JoinGame);
+        Spark.post("/game", this::CreateGame);
         Spark.delete("/db", this::Clear);
 
 
@@ -70,7 +64,6 @@ public class Server {
     private Object exceptionHandler(ResponseException ex, Request req, Response res) {
         var body = new Gson().toJson(Map.of("message", String.format("Error: %s", ex.getMessage()), "success", false));
         res.type("application/json");
-        System.out.println(ex.StatusCode());
         res.status(ex.StatusCode());
         res.body(body);
         return body;
@@ -106,9 +99,7 @@ public class Server {
     private Object Login(Request req, Response res) throws ResponseException{
         var serializer = new Gson();
         LoginRequest loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
-
         AuthData auth = service.Login(loginRequest);
-
         return serializer.toJson(auth);
     }
 
@@ -121,36 +112,44 @@ public class Server {
     }
 
     private Object ListGames(Request req, Response res)throws ResponseException {
-        //res.type("application/json");
-        return new Gson().toJson(Map.of("game", games));
+        res.type("application/json");
+        String auth = req.headers("Authorization");
+        var games = service.ListGames(auth).toArray();
+        System.out.println("1. " + games + "\n");
+        System.out.println(new Gson().toJson(games));
+        return new Gson().toJson(Map.of("GameData", games));
+        //HashMap<Integer, GameData> games = new HashMap<>();
+
+        //return new Gson().toJson(Map.of("GameData", games));
     }
 
     private Object JoinGame(Request req, Response res)throws ResponseException {
+        String auth = req.headers("Authorization");
+        var serializer = new Gson();
+        JoinGameRequest joinGame= serializer.fromJson(req.body(), JoinGameRequest.class);
 
-        res.type("application/json");
+        service.JoinGame(auth, joinGame);
+
+
+        //res.type("application/json");
         return "";
     }
 
     private Object CreateGame(Request req, Response res)throws ResponseException {
-        String auth = req.headers("Authorization");
         var serializer = new Gson();
-        /*
-        CreateGameRequest GameName = serializer.fromJson(req.body(), CreateGameRequest.class);
-        System.out.println(GameName);
-        //String gameID = service.CreateGame(GameID);
-        //CreateGameResult GameID = service.CreateGame(auth, GameName);*/
-        CreateGameResult GameID=new CreateGameResult(15);
-        res.body(serializer.toJson(GameID));
+        String auth = req.headers("Authorization");
+        CreateGameRequest gameRequest = serializer.fromJson(req.body(), CreateGameRequest.class);
 
-        System.out.println(serializer.toJson(GameID));
-        System.out.println("hello");
-        return serializer.toJson(GameID);
+
+        return serializer.toJson(service.CreateGame(auth,gameRequest.gameName()));
     }
 
     private Object Clear(Request req, Response res) throws ResponseException {
         service.Clear();
         return "";
     }
+
+
 
 
 

@@ -25,7 +25,7 @@ public class ServiceTests {
     private static ChessService service;
     private UserData defaultUser=new UserData("TestName","TestPassword","TestEmail@test.com");
     private AuthData defaultUserAuth;
-    private GameData defaultGame;
+    private CreateGameResult defaultGame;
 
     @BeforeAll
     public static void init() {
@@ -39,27 +39,16 @@ public class ServiceTests {
 
         //one user already logged in
         defaultUserAuth = service.register(defaultUser);
-        service.CreateGame(defaultUserAuth.authToken(),"defaultGame" );
+        defaultGame = service.CreateGame(defaultUserAuth.authToken(),"defaultGame" );
     }
 
-    @Test
-    @DisplayName("a")
-    public void serverTests() {
-        assertEquals(200, 100 + 100);
-        assertEquals(100, 2 * 50);
-        assertNotNull(new Object(), "Response did not return authentication String");
-        assertThrows(DataAccessException.class, () -> {
-            throw new DataAccessException(404, "hello world");
-        });
-    }
     @Test
     @Order(1)
     @DisplayName("Clear")
     public void clear() throws ResponseException {
         service.Clear();
         Assertions.assertThrows(ResponseException.class, () -> service.Login(new LoginRequest(defaultUser.username(),defaultUser.password())));
-        service.register(new UserData("TestName","TestPassword","TestEmail@test.com"));
-        service.Login(new LoginRequest(defaultUser.username(),defaultUser.password()));
+        defaultUserAuth = service.register(new UserData("TestName","TestPassword","TestEmail@test.com"));
         var games=service.ListGames(defaultUserAuth.authToken());
         Assertions.assertTrue(games.isEmpty());
     }
@@ -73,14 +62,13 @@ public class ServiceTests {
 
         service.Clear();
         Assertions.assertThrows(ResponseException.class, () -> service.Login(new LoginRequest(defaultUser.username(),defaultUser.password())));
-        service.register(new UserData("TestName","TestPassword","TestEmail@test.com"));
-        service.Login(new LoginRequest(defaultUser.username(),defaultUser.password()));
+        defaultUserAuth = service.register(new UserData("TestName","TestPassword","TestEmail@test.com"));
+
         var games=service.ListGames(defaultUserAuth.authToken());
         Assertions.assertTrue(games.isEmpty());
 
         Assertions.assertThrows(ResponseException.class, () -> service.Login(new LoginRequest(user.username(),user.password())));
-        service.register(new UserData("user","password","user@test.com"));
-        service.Login(new LoginRequest(user.username(),user.password()));
+        auth = service.register(new UserData("user","password","user@test.com"));
         games=service.ListGames(auth.authToken());
         Assertions.assertTrue(games.isEmpty());
 
@@ -159,7 +147,6 @@ public class ServiceTests {
     public void listGames() throws ResponseException{
         var games = service.ListGames(defaultUserAuth.authToken());
         Assertions.assertNotNull(games);
-
     }
 
     @Test
@@ -225,8 +212,6 @@ public class ServiceTests {
         UserData newUser1= new UserData("newUser1","newPassword1", "newUser1@new.com");
         AuthData ResultAuthData1 = service.register(newUser1);
         service.JoinGame(ResultAuthData1.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,defaultGame.gameID()));
-
-
     }
 
 }

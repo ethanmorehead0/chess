@@ -7,11 +7,12 @@ import model.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 public class MemoryDataAccess implements DataAccess{
-    private int gameNumber=0;
+    private int gameNumber=1;
     private ArrayList<UserData> users = new ArrayList<>();
-    private ArrayList<GameData> games = new ArrayList<>();
+    private HashMap<Integer, GameData> games = new HashMap<>();
     private ArrayList<AuthData> Authorization = new ArrayList<>();
 
 
@@ -34,23 +35,28 @@ public class MemoryDataAccess implements DataAccess{
         }
         return null;
     };
-    public GameData createGame(String username, String gameName) {
+    public int createGame(String username, String gameName) {
 
         GameData game = new GameData(gameNumber, username, null, gameName, new ChessGame());
+        games.put(gameNumber, game);
         gameNumber+=1;
-        games.add(game);
-        return game;
+        return game.gameID();
     };
-    public CreateGameResult getGame(int game) {
+    public GameData getGame(int gameID) {
+        return games.get(gameID);
 
-        return new CreateGameResult(game);
-        //return new GameData(1, "a", "b", "c", new ChessGame());
     };
     public Collection<GameData> listGames(String auth) {
-        return games;
+        return games.values();
     };
 
-    public void updateGame() {
+    public void updateGame(String auth, GameData data) {
+        //only those that are in game can change
+        var game = getGame(data.gameID());
+        game=data;
+        games.remove(game);
+        games.put(data.gameID(), data);
+        //listGames(auth);
 
     };
 

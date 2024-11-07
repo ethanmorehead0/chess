@@ -1,3 +1,5 @@
 package model;
 
-public record CreateGameRequest(String name) { }
+import chess.ChessGame;
+
+public record CreateGameRequest(String gameName) { }
