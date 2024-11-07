@@ -27,7 +27,7 @@ public class ChessService {
         UserData user=dataAccess.getUser(req.username());
 
         if(user!=null && user.password().equals(req.password())){
-            return new AuthData(CreateAuth(),user.username());
+            return new AuthData(CreateAuthID(),user.username());
         }
         else{
             throw new ResponseException(401,"Error: unauthorized");
@@ -57,7 +57,7 @@ public class ChessService {
             throw new ResponseException(400, "Bad request");
         }
         dataAccess.createUser(user);
-        AuthData data=new AuthData(CreateAuth(),user.username());
+        AuthData data=new AuthData(CreateAuthID(),user.username());
         dataAccess.createAuth(data);
 
         return data;
@@ -67,8 +67,9 @@ public class ChessService {
         return dataAccess.listGames(auth);
     }
 
-    public String CreateGame() throws ResponseException{
-        return "gameID";
+    public CreateGameResult CreateGame(String auth, CreateGameRequest req) throws ResponseException{
+        dataAccess.createGame("name", req.name());
+        return new CreateGameResult(123);
     }
 
     public void JoinGame() throws ResponseException{
@@ -78,7 +79,7 @@ public class ChessService {
 
 
 
-    private String CreateAuth(){
+    private String CreateAuthID(){
         return UUID.randomUUID().toString();
     }
 

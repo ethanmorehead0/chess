@@ -2,16 +2,14 @@ package dataaccess;
 
 import chess.ChessGame;
 import exception.ResponseException;
-import model.AllGamesData;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class MemoryDataAccess implements DataAccess{
+    private int gameNumber=0;
     private ArrayList<UserData> users = new ArrayList<>();
     private ArrayList<GameData> games = new ArrayList<>();
     private ArrayList<AuthData> Authorization = new ArrayList<>();
@@ -36,18 +34,26 @@ public class MemoryDataAccess implements DataAccess{
         }
         return null;
     };
-    public void createGame() throws ResponseException{
+    public GameData createGame(String username, String gameName) throws ResponseException{
 
+        GameData game = new GameData(gameNumber, username, null, gameName, new ChessGame());
+        gameNumber+=1;
+        games.add(game);
+        return game;
     };
-    public GameData getGame() throws ResponseException{
-        return new GameData(0, "a", "b", "c", new ChessGame());
+    public CreateGameResult getGame(int game) throws ResponseException{
+
+        return new CreateGameResult(game);
+        //return new GameData(1, "a", "b", "c", new ChessGame());
     };
     public Collection<GameData> listGames(String auth) throws ResponseException{
         return games;
     };
+
     public void updateGame() throws ResponseException{
 
     };
+
     public void createAuth(AuthData auth) throws ResponseException{
         Authorization.add(auth);
     };
@@ -66,19 +72,5 @@ public class MemoryDataAccess implements DataAccess{
             Authorization.removeIf(authorization -> authorization.equals(auth));
         }
     };
-
-
-
-
-
-    //toDelete later...
-    public AuthData login(){
-        AuthData auth= new AuthData("temp", "temp");
-
-        //implement
-
-
-        return auth;
-    }
 
 }

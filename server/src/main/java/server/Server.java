@@ -132,14 +132,23 @@ public class Server {
     }
 
     private Object CreateGame(Request req, Response res)throws ResponseException {
-        res.type("application/json");
-        return new Gson().toJson(Map.of("user", users));
+        String auth = req.headers("Authorization");
+        var serializer = new Gson();
+        /*
+        CreateGameRequest GameName = serializer.fromJson(req.body(), CreateGameRequest.class);
+        System.out.println(GameName);
+        //String gameID = service.CreateGame(GameID);
+        //CreateGameResult GameID = service.CreateGame(auth, GameName);*/
+        CreateGameResult GameID=new CreateGameResult(15);
+        res.body(serializer.toJson(GameID));
+
+        System.out.println(serializer.toJson(GameID));
+        System.out.println("hello");
+        return serializer.toJson(GameID);
     }
 
     private Object Clear(Request req, Response res) throws ResponseException {
         service.Clear();
-        //res.status(200);
-
         return "";
     }
 
