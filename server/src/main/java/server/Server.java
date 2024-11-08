@@ -1,8 +1,6 @@
 package server;
 
-import chess.ChessGame;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import dataaccess.MemoryDataAccess;
 import model.*;
 import spark.*;
@@ -52,9 +50,6 @@ public class Server {
         return Spark.port();
     }
 
-    public static String generateToken() {
-        return UUID.randomUUID().toString();
-    }
 
     public int port() {
         return Spark.port();
@@ -68,9 +63,6 @@ public class Server {
         res.status(ex.StatusCode());
         res.body(body);
         return body;
-    }
-    private Object throwError(Request req, Response res) {
-        throw new RuntimeException("Server on fire");
     }
 
     public Object errorHandler(Exception e, Request req, Response res) {
@@ -116,9 +108,7 @@ public class Server {
         var serializer=new Gson();
         String auth = req.headers("Authorization");
         AllGamesData allGames= service.ListGames(auth);
-        //AllGamesData[] allGames=[service.ListGames(auth)];
-        System.out.println(serializer.toJson(allGames));
-        
+
         return serializer.toJson(allGames);
     }
 

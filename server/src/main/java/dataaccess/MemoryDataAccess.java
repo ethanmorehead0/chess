@@ -38,22 +38,23 @@ public class MemoryDataAccess implements DataAccess{
         GameData game = new GameData(gameNumber, null, null, gameName);
         games.put(gameNumber, game);
         gameNumber+=1;
-        return game.integer();
+        return game.gameID();
     };
     public GameData getGame(int gameID) {
         return games.get(gameID);
 
     };
     public Collection<GameData> listGames(String auth) {
+        System.out.println("1: " + games.values());
         return games.values();
     };
 
     public void updateGame(String auth, GameData data) {
         //only those that are in game can change
-        var game = getGame(data.integer());
+        var game = getGame(data.gameID());
         //game=data;
         games.remove(game);
-        games.put(data.integer(), data);
+        games.put(data.gameID(), data);
         //listGames(auth);
 
     };
@@ -61,7 +62,9 @@ public class MemoryDataAccess implements DataAccess{
     public void createAuth(AuthData auth) {
         Authorization.add(auth);
     };
+
     public AuthData getAuth(String auth) {
+        System.out.print("getAuth: ");
         if(Authorization!=null) {
             for (AuthData authorization : Authorization) {
                 if (authorization.authToken().equals(auth)) {
@@ -69,11 +72,15 @@ public class MemoryDataAccess implements DataAccess{
                 }
             }
         }
+        System.out.println(auth + "  --  " + Authorization);
         return null;
+        //return new AuthData(null,null);
     };
     public void deleteAuth(AuthData auth) {
         if(Authorization!=null) {
+            System.out.println("First " + Authorization);
             Authorization.removeIf(authorization -> authorization.equals(auth));
+            System.out.println("After " + Authorization);
         }
     };
 

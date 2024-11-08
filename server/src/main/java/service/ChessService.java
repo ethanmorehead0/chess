@@ -27,7 +27,9 @@ public class ChessService {
         UserData user=dataAccess.getUser(req.username());
 
         if(user!=null && user.password().equals(req.password())){
-            return new AuthData(CreateAuthID(),user.username());
+            String newAuth= CreateAuthID();
+            dataAccess.createAuth(new AuthData(newAuth, user.username()));
+            return new AuthData(newAuth, user.username());
         }
         else{
             throw new ResponseException(401,"Error: unauthorized");
@@ -67,7 +69,7 @@ public class ChessService {
         if(dataAccess.getAuth(auth)==null){
             throw new ResponseException(401, "Error: unauthorized");
         }
-
+        System.out.println("2: " + new AllGamesData(dataAccess.listGames(auth)));
         return new AllGamesData(dataAccess.listGames(auth));
     }
 
@@ -82,24 +84,26 @@ public class ChessService {
     public void JoinGame(String authToken, JoinGameRequest req) throws ResponseException{
         AuthData auth = dataAccess.getAuth(authToken);
 
-        if(req.playerColor() == null || req.gameID() == 0){
+        if(req.playerColor() == null || req.gameID() == null){
             throw new ResponseException(400,"Error: unauthorized");
         }
         if(auth==null){
-            throw new ResponseException(401,"Error: unauthorized");
+            System.out.println(authToken + " : " + req);
+            System.out.println(auth);
+            throw new ResponseException(401,"1. unauthorized");
         }
 
         GameData data = dataAccess.getGame(req.gameID());
-        if(data==null || (req.playerColor().equals(ChessGame.TeamColor.BLACK) && data.s1()!=null) || (req.playerColor() == ChessGame.TeamColor.WHITE && data.s()!=null)){
+        if(data==null || (req.playerColor().equals(ChessGame.TeamColor.BLACK) && data.blackUsername()!=null) || (req.playerColor() == ChessGame.TeamColor.WHITE && data.whiteUsername()!=null)){
             throw new ResponseException(403,"Error: already taken");
         }
 
         GameData newData;
         //only works with white*******
         if(req.playerColor()== ChessGame.TeamColor.WHITE){
-            newData= new GameData(data.integer(),auth.username(),data.s1(),data.gameName());
+            newData= new GameData(data.gameID(),auth.username(),data.blackUsername(),data.gameName());
         }else{
-            newData= new GameData(data.integer(),data.s(),auth.username(),data.gameName());
+            newData= new GameData(data.gameID(),data.whiteUsername(),auth.username(),data.gameName());
         }
 
 
@@ -110,7 +114,9 @@ public class ChessService {
 
 
     private String CreateAuthID(){
-        return UUID.randomUUID().toString();
+        String auth= UUID.randomUUID().toString();
+        System.out.println("Auth data: " + auth);
+        return auth;
     }
 
 }
