@@ -188,6 +188,7 @@ public class StandardAPITests {
     public void goodJoin() {
         //create game
         TestCreateResult createResult = serverFacade.createGame(createRequest, existingAuth);
+
         //join as white
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID());
 
@@ -198,7 +199,6 @@ public class StandardAPITests {
         assertHttpOk(joinResult);
 
         TestListResult listResult = serverFacade.listGames(existingAuth);
-        System.out.println(serverFacade.listGames(existingAuth).getGames());
 
         Assertions.assertEquals(1, listResult.getGames().length);
         Assertions.assertEquals(existingUser.getUsername(), listResult.getGames()[0].getWhiteUsername());
@@ -291,7 +291,7 @@ public class StandardAPITests {
         TestUser userA = new TestUser("a", "A", "a.A");
         TestUser userB = new TestUser("b", "B", "b.B");
         TestUser userC = new TestUser("c", "C", "c.C");
-        
+
         TestAuthResult authA = serverFacade.register(userA);
         TestAuthResult authB = serverFacade.register(userB);
         TestAuthResult authC = serverFacade.register(userC);
@@ -369,10 +369,7 @@ public class StandardAPITests {
 
 
         TestJoinRequest joinRequest = new TestJoinRequest(ChessGame.TeamColor.WHITE, createResult.getGameID());
-        System.out.println("11. " + joinRequest);
         TestResult joinResult = serverFacade.joinPlayer(joinRequest, loginOne.getAuthToken());
-        System.out.println("12. " + joinResult.getMessage());
-        System.out.println("13. " + "ahhh");
         assertHttpOk(joinResult);
 
 
