@@ -4,7 +4,6 @@ import dataaccess.DataAccess;
 import exception.ResponseException;
 import model.*;
 
-import java.util.Collection;
 import java.util.UUID;
 
 
@@ -64,12 +63,12 @@ public class ChessService {
         return data;
     }
 
-    public Collection<GameData> ListGames(String auth) throws ResponseException {
-        /*if(dataAccess.getAuth(auth)==null){
+    public AllGamesData ListGames(String auth) throws ResponseException {
+        if(dataAccess.getAuth(auth)==null){
             throw new ResponseException(401, "Error: unauthorized");
-        }*/
+        }
 
-        return dataAccess.listGames(auth);
+        return new AllGamesData(dataAccess.listGames(auth));
     }
 
     public CreateGameResult CreateGame(String authToken, String name) throws ResponseException{
@@ -82,17 +81,29 @@ public class ChessService {
 
     public void JoinGame(String authToken, JoinGameRequest req) throws ResponseException{
         AuthData auth = dataAccess.getAuth(authToken);
+
+        if(req.playerColor() == null || req.gameID() == 0){
+            throw new ResponseException(400,"Error: unauthorized");
+        }
         if(auth==null){
             throw new ResponseException(401,"Error: unauthorized");
         }
+
         GameData data = dataAccess.getGame(req.gameID());
-        if(data==null || (req.color() == ChessGame.TeamColor.BLACK && data.blackUsername()!=null) || (req.color() == ChessGame.TeamColor.WHITE && data.whiteUsername()!=null)){
+        if(data==null || (req.playerColor().equals(ChessGame.TeamColor.BLACK) && data.s1()!=null) || (req.playerColor() == ChessGame.TeamColor.WHITE && data.s()!=null)){
             throw new ResponseException(403,"Error: already taken");
         }
-        GameData newData= new GameData(data.gameID(),data.whiteUsername(),auth.username(),data.gameName(),data.game());
+
+        GameData newData;
+        //only works with white*******
+        if(req.playerColor()== ChessGame.TeamColor.WHITE){
+            newData= new GameData(data.integer(),auth.username(),data.s1(),data.gameName());
+        }else{
+            newData= new GameData(data.integer(),data.s(),auth.username(),data.gameName());
+        }
+
 
         dataAccess.updateGame(authToken,newData);
-
     }
 
 

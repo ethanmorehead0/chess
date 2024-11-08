@@ -1,7 +1,5 @@
 package dataaccess;
 
-import chess.ChessGame;
-import exception.ResponseException;
 import model.*;
 
 
@@ -37,10 +35,10 @@ public class MemoryDataAccess implements DataAccess{
     };
     public int createGame(String username, String gameName) {
 
-        GameData game = new GameData(gameNumber, username, null, gameName, new ChessGame());
+        GameData game = new GameData(gameNumber, null, null, gameName);
         games.put(gameNumber, game);
         gameNumber+=1;
-        return game.gameID();
+        return game.integer();
     };
     public GameData getGame(int gameID) {
         return games.get(gameID);
@@ -52,10 +50,10 @@ public class MemoryDataAccess implements DataAccess{
 
     public void updateGame(String auth, GameData data) {
         //only those that are in game can change
-        var game = getGame(data.gameID());
-        game=data;
+        var game = getGame(data.integer());
+        //game=data;
         games.remove(game);
-        games.put(data.gameID(), data);
+        games.put(data.integer(), data);
         //listGames(auth);
 
     };

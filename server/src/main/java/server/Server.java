@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import dataaccess.MemoryDataAccess;
@@ -112,15 +113,13 @@ public class Server {
     }
 
     private Object ListGames(Request req, Response res)throws ResponseException {
-        res.type("application/json");
+        var serializer=new Gson();
         String auth = req.headers("Authorization");
-        var games = service.ListGames(auth).toArray();
-        System.out.println("1. " + games + "\n");
-        System.out.println(new Gson().toJson(games));
-        return new Gson().toJson(Map.of("GameData", games));
-        //HashMap<Integer, GameData> games = new HashMap<>();
-
-        //return new Gson().toJson(Map.of("GameData", games));
+        AllGamesData allGames= service.ListGames(auth);
+        //AllGamesData[] allGames=[service.ListGames(auth)];
+        System.out.println(serializer.toJson(allGames));
+        
+        return serializer.toJson(allGames);
     }
 
     private Object JoinGame(Request req, Response res)throws ResponseException {

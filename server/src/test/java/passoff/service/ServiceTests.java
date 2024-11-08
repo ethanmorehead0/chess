@@ -211,7 +211,7 @@ public class ServiceTests {
 
         UserData newUser1= new UserData("newUser1","newPassword1", "newUser1@new.com");
         AuthData ResultAuthData1 = service.register(newUser1);
-        service.JoinGame(ResultAuthData1.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,defaultGame.gameID()));
+        Assertions.assertThrows(ResponseException.class, () -> service.JoinGame(ResultAuthData1.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,defaultGame.gameID())));
     }
 
 }

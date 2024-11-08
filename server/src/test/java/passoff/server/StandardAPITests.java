@@ -330,6 +330,7 @@ public class StandardAPITests {
 
 
         //list games
+        TestListResult listResul = new TestListResult();
         TestListResult listResult = serverFacade.listGames(existingAuth);
         assertHttpOk(listResult);
         Collection<TestListEntry> returnedList = new HashSet<>(Arrays.asList(listResult.getGames()));
