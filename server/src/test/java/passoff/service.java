@@ -1,4 +1,4 @@
-package passoff.service;
+package passoff;
 
 import chess.ChessGame;
 import org.junit.jupiter.api.*;
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ServiceTests {
+public class service {
     private static ChessService service;
     private UserData defaultUser=new UserData("TestName","TestPassword","TestEmail@test.com");
     private AuthData defaultUserAuth;
