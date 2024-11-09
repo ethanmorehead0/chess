@@ -2,7 +2,6 @@ package service;
 
 import chess.ChessGame;
 import org.junit.jupiter.api.*;
-import service.ChessService;
 import dataaccess.MemoryDataAccess;
 import model.*;
 
@@ -13,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class Service {
+public class ServiceTests {
     private static ChessService service;
     private UserData defaultUser=new UserData("TestName","TestPassword","TestEmail@test.com");
     private AuthData defaultUserAuth;
