@@ -12,47 +12,48 @@ public class ChessMove {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ChessMove chessMove)) return false;
-        return Objects.equals(startPosition, chessMove.startPosition) && Objects.equals(endPosition, chessMove.endPosition) && promotionPiece == chessMove.promotionPiece;
+        if (this == o) {return true;}
+        if (!(o instanceof ChessMove chessMove)) {return false;}
+
+        return Objects.equals(startPos, chessMove.startPos) && Objects.equals(endPos, chessMove.endPos) && promPiece == chessMove.promPiece;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startPosition, endPosition, promotionPiece);
+        return Objects.hash(startPos, endPos, promPiece);
     }
 
     @Override
     public String toString() {
         return "CM: " +
-                "start " + startPosition +
-                ", end " + endPosition +
-                ", promotion " + promotionPiece;
+                "start " + startPos +
+                ", end " + endPos +
+                ", promotion " + promPiece;
     }
 
-    private ChessPosition startPosition;
-    private ChessPosition endPosition;
-    private ChessPiece.PieceType promotionPiece;
+    private ChessPosition startPos;
+    private ChessPosition endPos;
+    private ChessPiece.PieceType promPiece;
 
-    public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
+    public ChessMove(ChessPosition startPos, ChessPosition endPos,
                      ChessPiece.PieceType promotionPiece) {
-        this.startPosition = startPosition;
-        this.endPosition = endPosition;
-        this.promotionPiece = promotionPiece;
+        this.startPos = startPos;
+        this.endPos = endPos;
+        this.promPiece = promotionPiece;
     }
 
     /**
      * @return ChessPosition of starting location
      */
-    public ChessPosition getStartPosition() {
-        return startPosition;
+    public ChessPosition getStartPos() {
+        return startPos;
     }
 
     /**
      * @return ChessPosition of ending location
      */
-    public ChessPosition getEndPosition() {
-        return endPosition;
+    public ChessPosition getEndPos() {
+        return endPos;
     }
 
     /**
@@ -61,7 +62,7 @@ public class ChessMove {
      *
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
-    public ChessPiece.PieceType getPromotionPiece() {
-        return promotionPiece;
+    public ChessPiece.PieceType getPromPiece() {
+        return promPiece;
     }
 }

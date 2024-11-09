@@ -17,17 +17,17 @@ public class ChessService {
 
     //All
 
-    public void Clear() throws ResponseException {
+    public void clear() throws ResponseException {
         dataAccess.clear();
     }
 
 
 
-    public AuthData Login(LoginRequest req) throws ResponseException {
+    public AuthData login(LoginRequest req) throws ResponseException {
         UserData user=dataAccess.getUser(req.username());
 
         if(user!=null && user.password().equals(req.password())){
-            String newAuth= CreateAuthID();
+            String newAuth= createAuthID();
             dataAccess.createAuth(new AuthData(newAuth, user.username()));
             return new AuthData(newAuth, user.username());
         }
@@ -37,7 +37,7 @@ public class ChessService {
         /*AuthData auth = dataAccess.login();
         return auth;*/
     }
-    public void Logout(String req) throws ResponseException {
+    public void logout(String req) throws ResponseException {
         if(req!=null){
             if(dataAccess.getAuth(req)==null){
                 throw new ResponseException(401, "Error: unauthorized");
@@ -59,13 +59,13 @@ public class ChessService {
             throw new ResponseException(400, "Bad request");
         }
         dataAccess.createUser(user);
-        AuthData data=new AuthData(CreateAuthID(),user.username());
+        AuthData data=new AuthData(createAuthID(),user.username());
         dataAccess.createAuth(data);
 
         return data;
     }
 
-    public AllGamesData ListGames(String auth) throws ResponseException {
+    public AllGamesData listGames(String auth) throws ResponseException {
         if(dataAccess.getAuth(auth)==null){
             throw new ResponseException(401, "Error: unauthorized");
         }
@@ -73,7 +73,7 @@ public class ChessService {
         return new AllGamesData(dataAccess.listGames(auth));
     }
 
-    public CreateGameResult CreateGame(String authToken, String name) throws ResponseException{
+    public CreateGameResult createGame(String authToken, String name) throws ResponseException{
         AuthData auth = dataAccess.getAuth(authToken);
         if(auth==null){
             throw new ResponseException(401,"Error: unauthorized");
@@ -81,7 +81,7 @@ public class ChessService {
         return new CreateGameResult(dataAccess.createGame(auth.username(), name));
     }
 
-    public void JoinGame(String authToken, JoinGameRequest req) throws ResponseException{
+    public void joinGame(String authToken, JoinGameRequest req) throws ResponseException{
         AuthData auth = dataAccess.getAuth(authToken);
 
         if(req.playerColor() == null || req.gameID() == null){
@@ -94,7 +94,13 @@ public class ChessService {
         }
 
         GameData data = dataAccess.getGame(req.gameID());
-        if(data==null || (req.playerColor().equals(ChessGame.TeamColor.BLACK) && data.blackUsername()!=null) || (req.playerColor() == ChessGame.TeamColor.WHITE && data.whiteUsername()!=null)){
+        if(data==null){
+            throw new ResponseException(403,"Error: already taken");
+        }
+        if((req.playerColor().equals(ChessGame.TeamColor.BLACK) && data.blackUsername()!=null)){
+            throw new ResponseException(403,"Error: already taken");
+        }
+        if((req.playerColor() == ChessGame.TeamColor.WHITE && data.whiteUsername()!=null)){
             throw new ResponseException(403,"Error: already taken");
         }
 
@@ -113,7 +119,7 @@ public class ChessService {
 
 
 
-    private String CreateAuthID(){
+    private String createAuthID(){
         String auth= UUID.randomUUID().toString();
         System.out.println("Auth data: " + auth);
         return auth;

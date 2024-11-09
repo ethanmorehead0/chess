@@ -11,13 +11,13 @@ public class MemoryDataAccess implements DataAccess{
     private int gameNumber=1;
     private ArrayList<UserData> users = new ArrayList<>();
     private HashMap<Integer, GameData> games = new HashMap<>();
-    private ArrayList<AuthData> Authorization = new ArrayList<>();
+    private ArrayList<AuthData> authorization = new ArrayList<>();
 
 
     public void clear() {
         users.clear();
         games.clear();
-        Authorization.clear();
+        authorization.clear();
     };
 
     public void createUser(UserData user) {
@@ -60,27 +60,27 @@ public class MemoryDataAccess implements DataAccess{
     };
 
     public void createAuth(AuthData auth) {
-        Authorization.add(auth);
+        authorization.add(auth);
     };
 
     public AuthData getAuth(String auth) {
         System.out.print("getAuth: ");
-        if(Authorization!=null) {
-            for (AuthData authorization : Authorization) {
+        if(authorization !=null) {
+            for (AuthData authorization : authorization) {
                 if (authorization.authToken().equals(auth)) {
                     return authorization;
                 }
             }
         }
-        System.out.println(auth + "  --  " + Authorization);
+        System.out.println(auth + "  --  " + authorization);
         return null;
         //return new AuthData(null,null);
     };
     public void deleteAuth(AuthData auth) {
-        if(Authorization!=null) {
-            System.out.println("First " + Authorization);
-            Authorization.removeIf(authorization -> authorization.equals(auth));
-            System.out.println("After " + Authorization);
+        if(authorization !=null) {
+            System.out.println("First " + authorization);
+            authorization.removeIf(authorization -> authorization.equals(auth));
+            System.out.println("After " + authorization);
         }
     };
 

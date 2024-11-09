@@ -16,8 +16,8 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ChessPiece that)) return false;
+        if (this == o) {return true;}
+        if (!(o instanceof ChessPiece that)) {return false;}
         return pieceColor == that.pieceColor && type == that.type;
     }
 
@@ -101,15 +101,21 @@ public class ChessPiece {
                 if(board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()))==null) {
 
                     pawnPromotion (myPosition, new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()), moves, isPromoted);
-                    if (myPosition.getRow() == 4.5 - dirrection*2.5 && board.getPiece(new ChessPosition(myPosition.getRow() + dirrection*2,myPosition.getColumn()))==null) {
-                        moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + dirrection*2,myPosition.getColumn()), null));
+                    if (myPosition.getRow() == 4.5 - dirrection*2.5) {
+                        if(board.getPiece(new ChessPosition(myPosition.getRow() + dirrection*2,myPosition.getColumn()))==null) {
+                            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + dirrection * 2, myPosition.getColumn()), null));
+                        }
                     }
                 }
-                if(myPosition.getColumn()<8 && board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()+1))!=null && board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()+1)).getTeamColor()!= board.getPiece(myPosition).getTeamColor()) {
-                    pawnPromotion (myPosition, new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()+1), moves, isPromoted);
+                if(myPosition.getColumn()<8 && board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()+1))!=null) {
+                    if(board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()+1)).getTeamColor()!= board.getPiece(myPosition).getTeamColor()) {
+                        pawnPromotion(myPosition, new ChessPosition(myPosition.getRow() + dirrection, myPosition.getColumn() + 1), moves, isPromoted);
+                    }
                 }
-                if(myPosition.getColumn()>1 && board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()-1))!=null && board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()-1)).getTeamColor()!= board.getPiece(myPosition).getTeamColor()) {
-                    pawnPromotion (myPosition, new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()-1), moves, isPromoted);
+                if(myPosition.getColumn()>1 && board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()-1))!=null) {
+                    if(board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()-1)).getTeamColor()!= board.getPiece(myPosition).getTeamColor()) {
+                        pawnPromotion(myPosition, new ChessPosition(myPosition.getRow() + dirrection, myPosition.getColumn() - 1), moves, isPromoted);
+                    }
                 }
 
                 break;

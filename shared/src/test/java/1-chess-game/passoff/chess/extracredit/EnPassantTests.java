@@ -2,7 +2,6 @@ package passoff.chess.extracredit;
 
 import chess.*;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -240,7 +239,7 @@ public class EnPassantTests {
         game.makeMove(setupMove);
 
         //make sure pawn has En Passant move
-        Assertions.assertTrue(game.validMoves(enPassantMove.getStartPosition()).contains(enPassantMove),
+        Assertions.assertTrue(game.validMoves(enPassantMove.getStartPos()).contains(enPassantMove),
                 "ChessGame validMoves did not contain a valid En Passant move");
 
         //en passant move works correctly
