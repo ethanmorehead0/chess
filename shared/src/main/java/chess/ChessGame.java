@@ -56,7 +56,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> moves = new ArrayList<>();
         ArrayList<ChessMove> oldMoves = (ArrayList<ChessMove>) board.getPiece(startPosition).pieceMoves(board, startPosition);
         TeamColor color = board.getPiece(startPosition).getTeamColor();
         for(ChessMove move : oldMoves){
@@ -80,7 +80,7 @@ public class ChessGame {
     }
 
     public Collection<ChessMove> allValidMoves(TeamColor color){
-        ArrayList<ChessMove> moves=new ArrayList<ChessMove>();
+        ArrayList<ChessMove> moves=new ArrayList<>();
 
         for (int i=1;i<=8;i++){
             for (int j=1;j<=8;j++){
@@ -122,7 +122,6 @@ public class ChessGame {
                 board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
             }
             board.removePiece(move.getStartPosition());
-            System.out.println(board);
         }
 
 
@@ -158,7 +157,7 @@ public class ChessGame {
     //Check spot in danger
     private boolean isInDanger(ChessPosition pos, TeamColor color){
 
-        boolean isInCheck=false;
+        boolean isInCheck;
 
         int[][] kingMove={{1,0,0},{1,1,0},{0,1,0},{-1,1,0},{-1,0,0},{-1,-1,0},{0,-1,0},{1,-1,0}};
         isInCheck= checkPiece(pos,color,kingMove, ChessPiece.PieceType.KING);
@@ -180,7 +179,6 @@ public class ChessGame {
             direction=-1;
         }
         if (pos.getRow() <= 7.5-0.5*direction && pos.getRow() >= 1.5-0.5*direction) {
-            System.out.println(pos);
             if(pos.getColumn()<8){
                 ChessPiece pawnTest = board.getPiece(new ChessPosition(pos.getRow()+direction, pos.getColumn()+1));
                 if(pawnTest != null && pawnTest.getPieceType() == ChessPiece.PieceType.PAWN && pawnTest.getTeamColor() !=color){
@@ -216,8 +214,7 @@ public class ChessGame {
                 int newCol=newPosition.getColumn();
                 if(newRow>0 && newRow<=8 && newCol > 0 && newCol <= 8) {
                     ChessPiece newPiece= board.getPiece(newPosition);
-                    ChessPiece kingPiece= board.getPiece(kingPosition);
-                    if (newPiece != null && newPiece.getTeamColor() != kingPiece.getTeamColor() && newPiece.getPieceType() == type) {
+                    if (newPiece != null && newPiece.getTeamColor() != color && newPiece.getPieceType() == type) {
                         return true;
                     } else if (board.getPiece(newPosition) != null) {
                         movement[2] = 0;

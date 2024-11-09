@@ -34,8 +34,6 @@ public class ChessService {
         else{
             throw new ResponseException(401,"Error: unauthorized");
         }
-        /*AuthData auth = dataAccess.login();
-        return auth;*/
     }
     public void logout(String req) throws ResponseException {
         if(req!=null){
@@ -69,7 +67,7 @@ public class ChessService {
         if(dataAccess.getAuth(auth)==null){
             throw new ResponseException(401, "Error: unauthorized");
         }
-        System.out.println("2: " + new AllGamesData(dataAccess.listGames(auth)));
+
         return new AllGamesData(dataAccess.listGames(auth));
     }
 
@@ -88,8 +86,6 @@ public class ChessService {
             throw new ResponseException(400,"Error: unauthorized");
         }
         if(auth==null){
-            System.out.println(authToken + " : " + req);
-            System.out.println(auth);
             throw new ResponseException(401,"1. unauthorized");
         }
 
@@ -120,9 +116,7 @@ public class ChessService {
 
 
     private String createAuthID(){
-        String auth= UUID.randomUUID().toString();
-        System.out.println("Auth data: " + auth);
-        return auth;
+        return UUID.randomUUID().toString();
     }
 
 }
