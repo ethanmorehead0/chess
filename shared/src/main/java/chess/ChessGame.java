@@ -143,11 +143,10 @@ public class ChessGame {
         ChessPosition pos = new ChessPosition(-1, -1);
         for(int i=1;i<9;i++){
             for(int j=1;j<9;j++){
-                if(board.getPiece(new ChessPosition(i,j)) != null) {
-                    if (board.getPiece(new ChessPosition(i, j)).getPieceType() == ChessPiece.PieceType.KING) {
-                        if (board.getPiece(new ChessPosition(i, j)).getTeamColor() == teamColor) {
-                            pos = new ChessPosition(i, j);
-                        }
+                ChessPiece checkPiece = board.getPiece(new ChessPosition(i,j));
+                if(checkPiece != null) {
+                    if (checkPiece.getPieceType() == ChessPiece.PieceType.KING && checkPiece.getTeamColor() == teamColor) {
+                        pos = new ChessPosition(i, j);
                     }
                 }
             }
@@ -213,14 +212,15 @@ public class ChessGame {
             int addColumn=movement[1];
             do{
                 ChessPosition newPosition = new ChessPosition(row+movement[0],column+movement[1]);
-                if(newPosition.getRow()>0 && newPosition.getRow()<=8) {
-                    if (newPosition.getColumn() > 0 && newPosition.getColumn() <= 8) {
-                        if (board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != board.getPiece(kingPosition).getTeamColor() && board.getPiece(newPosition).getPieceType() == type) {
-                            return true;
-                        } else if (board.getPiece(newPosition) != null) {
-                            movement[2] = 0;
-                        }
+                int newRow=newPosition.getRow();
+                int newCol=newPosition.getColumn();
+                if(newRow>0 && newRow<=8 && newCol > 0 && newCol <= 8) {
+                    if (board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != board.getPiece(kingPosition).getTeamColor() && board.getPiece(newPosition).getPieceType() == type) {
+                        return true;
+                    } else if (board.getPiece(newPosition) != null) {
+                        movement[2] = 0;
                     }
+
                 }
                 else{movement[2]=0;}
                 movement[0]+=addRow;
