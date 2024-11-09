@@ -52,7 +52,7 @@ public class ChessMove {
     /**
      * @return ChessPosition of ending location
      */
-    public ChessPosition getEndPosition() {
+    public ChessPosition getEndPos() {
         return endPos;
     }
 

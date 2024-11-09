@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class service {
+public class Service {
     private static ChessService service;
     private UserData defaultUser=new UserData("TestName","TestPassword","TestEmail@test.com");
     private AuthData defaultUserAuth;
@@ -182,13 +182,15 @@ public class service {
     public void joinNoGame() throws ResponseException{
         UserData newUser= new UserData("newUser","newPassword", "newUser@new.com");
         AuthData resultAuthData = service.register(newUser);
-        Assertions.assertThrows(ResponseException.class, () -> service.joinGame(resultAuthData.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,-1)));
+        JoinGameRequest join = new JoinGameRequest(ChessGame.TeamColor.BLACK,-1);
+        Assertions.assertThrows(ResponseException.class, () -> service.joinGame(resultAuthData.authToken(), join));
     }
     @Test
     @Order(17)
     @DisplayName("Join Game - same user")
     public void joinOwnGame() {
-        Assertions.assertThrows(ResponseException.class, () -> service.joinGame(defaultUserAuth.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,-1)));
+        JoinGameRequest join = new JoinGameRequest(ChessGame.TeamColor.BLACK,-1);
+        Assertions.assertThrows(ResponseException.class, () -> service.joinGame(defaultUserAuth.authToken(), join));
     }
 
     @Test
@@ -201,7 +203,8 @@ public class service {
 
         UserData newUser1= new UserData("newUser1","newPassword1", "newUser1@new.com");
         AuthData resultAuthData1 = service.register(newUser1);
-        Assertions.assertThrows(ResponseException.class, () -> service.joinGame(resultAuthData1.authToken(), new JoinGameRequest(ChessGame.TeamColor.BLACK,defaultGame.gameID())));
+        JoinGameRequest join = new JoinGameRequest(ChessGame.TeamColor.BLACK,defaultGame.gameID());
+        Assertions.assertThrows(ResponseException.class, () -> service.joinGame(resultAuthData1.authToken(), join));
     }
 
 }

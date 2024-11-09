@@ -103,17 +103,20 @@ public class ChessPiece {
                     pawnPromotion (myPosition, new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()), moves, isPromoted);
                     if (myPosition.getRow() == 4.5 - dirrection*2.5) {
                         if(board.getPiece(new ChessPosition(myPosition.getRow() + dirrection*2,myPosition.getColumn()))==null) {
-                            moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + dirrection * 2, myPosition.getColumn()), null));
+                            ChessPosition position = new ChessPosition(myPosition.getRow() + dirrection * 2, myPosition.getColumn());
+                            moves.add(new ChessMove(myPosition, position, null));
                         }
                     }
                 }
                 if(myPosition.getColumn()<8 && board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()+1))!=null) {
-                    if(board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()+1)).getTeamColor()!= board.getPiece(myPosition).getTeamColor()) {
+                    ChessPosition position = new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()+1);
+                    if(board.getPiece(position).getTeamColor()!= board.getPiece(myPosition).getTeamColor()) {
                         pawnPromotion(myPosition, new ChessPosition(myPosition.getRow() + dirrection, myPosition.getColumn() + 1), moves, isPromoted);
                     }
                 }
                 if(myPosition.getColumn()>1 && board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()-1))!=null) {
-                    if(board.getPiece(new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()-1)).getTeamColor()!= board.getPiece(myPosition).getTeamColor()) {
+                    ChessPosition position = new ChessPosition(myPosition.getRow() + dirrection,myPosition.getColumn()-1);
+                    if(board.getPiece(position).getTeamColor()!= board.getPiece(myPosition).getTeamColor()) {
                         pawnPromotion(myPosition, new ChessPosition(myPosition.getRow() + dirrection, myPosition.getColumn() - 1), moves, isPromoted);
                     }
                 }
