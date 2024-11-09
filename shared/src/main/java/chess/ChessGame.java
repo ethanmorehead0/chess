@@ -216,7 +216,8 @@ public class ChessGame {
                 int newCol=newPosition.getColumn();
                 if(newRow>0 && newRow<=8 && newCol > 0 && newCol <= 8) {
                     ChessPiece newPiece= board.getPiece(newPosition);
-                    if (newPiece != null && newPiece.getTeamColor() != board.getPiece(kingPosition).getTeamColor() && newPiece.getPieceType() == type) {
+                    ChessPiece kingPiece= board.getPiece(kingPosition);
+                    if (newPiece != null && newPiece.getTeamColor() != kingPiece.getTeamColor() && newPiece.getPieceType() == type) {
                         return true;
                     } else if (board.getPiece(newPosition) != null) {
                         movement[2] = 0;
