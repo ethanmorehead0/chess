@@ -60,16 +60,16 @@ public class ChessGame {
         ArrayList<ChessMove> oldMoves = (ArrayList<ChessMove>) board.getPiece(startPosition).pieceMoves(board, startPosition);
         TeamColor color = board.getPiece(startPosition).getTeamColor();
         for(ChessMove move : oldMoves){
-            ChessPiece capturedPiece=board.getPiece(move.getEndPos());
-            board.addPiece(move.getEndPos(), board.getPiece(move.getStartPosition()));
+            ChessPiece capturedPiece=board.getPiece(move.getEndPosition());
+            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
             board.addPiece(move.getStartPosition(),null);
             if(!isInCheck(color)){
 
                 moves.add(move);
             }
 
-            board.addPiece(move.getStartPosition(), board.getPiece(move.getEndPos()));
-            board.addPiece(move.getEndPos(),capturedPiece);
+            board.addPiece(move.getStartPosition(), board.getPiece(move.getEndPosition()));
+            board.addPiece(move.getEndPosition(),capturedPiece);
 
 
         }
@@ -113,13 +113,13 @@ public class ChessGame {
         } else {
             if(move.getPromPiece()!=null){
                 ChessPiece promotionPiece = new ChessPiece(teamTurn, move.getPromPiece());
-                board.addPiece(move.getEndPos(), board.getPiece(move.getStartPosition()));
+                board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
                 board.removePiece(move.getStartPosition());
 
-                board.addPiece(move.getEndPos(), promotionPiece);
+                board.addPiece(move.getEndPosition(), promotionPiece);
             }
             else{
-                board.addPiece(move.getEndPos(), board.getPiece(move.getStartPosition()));
+                board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
             }
             board.removePiece(move.getStartPosition());
             System.out.println(board);
