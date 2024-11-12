@@ -1,20 +1,28 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySqlDataAccess;
 import model.*;
 import spark.*;
 import exception.ResponseException;
 import service.*;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 public class Server {
 
-    private final ChessService service = new ChessService(new MemoryDataAccess());
+    private final ChessService service;
 
-
-
+    public Server(){
+        service=new ChessService(new MemoryDataAccess());
+    }
+    public Server(ChessService service) {
+        this.service=service;
+    }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 

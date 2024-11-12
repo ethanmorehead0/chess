@@ -45,7 +45,6 @@ public class MemoryDataAccess implements DataAccess{
 
     }
     public Collection<GameData> listGames(String auth) {
-        System.out.println("1: " + games.values());
         return games.values();
     }
 
@@ -64,7 +63,6 @@ public class MemoryDataAccess implements DataAccess{
     };
 
     public AuthData getAuth(String auth) {
-        System.out.print("getAuth: ");
         if(authorization !=null) {
             for (AuthData authorization : authorization) {
                 if (authorization.authToken().equals(auth)) {
@@ -72,15 +70,12 @@ public class MemoryDataAccess implements DataAccess{
                 }
             }
         }
-        System.out.println(auth + "  --  " + authorization);
         return null;
         //return new AuthData(null,null);
     }
     public void deleteAuth(AuthData auth) {
         if(authorization !=null) {
-            System.out.println("First " + authorization);
             authorization.removeIf(authorization -> authorization.equals(auth));
-            System.out.println("After " + authorization);
         }
     }
 

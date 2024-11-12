@@ -21,7 +21,7 @@ public class Main {
             }
 
             var service = new ChessService(dataAccess);
-            var server = new Server();
+            var server = new Server(service);
             port = server.run(port);
             System.out.printf("Server started on port %d%n", port);
             return;
