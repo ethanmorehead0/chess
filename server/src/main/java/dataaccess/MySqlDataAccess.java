@@ -27,10 +27,10 @@ public class MySqlDataAccess implements DataAccess{
         configureDatabase();
     }
 
-    public void clear() {
-        users.clear();
-        games.clear();
-        authorization.clear();
+    public void clear() throws ResponseException {
+        executeUpdate("TRUNCATE TABLE userdata");
+        executeUpdate("TRUNCATE TABLE gamedata");
+        executeUpdate("TRUNCATE TABLE authdata");
     }
 
     public void createUser(UserData user) throws ResponseException {
@@ -52,6 +52,7 @@ public class MySqlDataAccess implements DataAccess{
         var statement= "INSERT INTO gamedata (gameName, game) VALUES (?, ?)";
         String newGame = "Json new game";
         var id = executeUpdate(statement, gameName, newGame);
+
         GameData game = new GameData(gameNumber, null, null, gameName);
         games.put(gameNumber, game);
         gameNumber+=1;
@@ -77,8 +78,12 @@ public class MySqlDataAccess implements DataAccess{
 
     }
 
-    public void createAuth(AuthData auth) {
-        authorization.add(auth);
+    public void createAuth(AuthData auth) throws ResponseException {
+
+        var statement= "INSERT INTO authdata (authtoken, username) VALUES (?, ?)";
+        var id = executeUpdate(statement, auth.authToken(), auth.username());
+
+
     };
 
     public AuthData getAuth(String auth) {
@@ -153,14 +158,10 @@ public class MySqlDataAccess implements DataAccess{
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci 
             """,
             """
-            CREATE TABLE IF NOT EXISTS `userdata` (
-              `id` int NOT NULL AUTO_INCREMENT,
-              `name` varchar(256) NOT NULL,
-              `password` varchar(256) DEFAULT 'user',
-              `email` text,
-              PRIMARY KEY (`id`),
-              KEY `type` (`password`),
-              KEY `name` (`name`)
+            CREATE TABLE IF NOT EXISTS `authdata` (
+              `auth token` varchar(256) NOT NULL,
+              `username` varchar(256) NOT NULL,
+              PRIMARY KEY (`auth token`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
