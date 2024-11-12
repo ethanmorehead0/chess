@@ -18,7 +18,7 @@ public class MemoryDataAccess implements DataAccess{
         users.clear();
         games.clear();
         authorization.clear();
-    };
+    }
 
     public void createUser(UserData user) {
         users.add(user);
@@ -32,22 +32,22 @@ public class MemoryDataAccess implements DataAccess{
             }
         }
         return null;
-    };
+    }
     public int createGame(String username, String gameName) {
 
         GameData game = new GameData(gameNumber, null, null, gameName);
         games.put(gameNumber, game);
         gameNumber+=1;
         return game.gameID();
-    };
+    }
     public GameData getGame(int gameID) {
         return games.get(gameID);
 
-    };
+    }
     public Collection<GameData> listGames(String auth) {
         System.out.println("1: " + games.values());
         return games.values();
-    };
+    }
 
     public void updateGame(String auth, GameData data) {
         //only those that are in game can change
@@ -57,7 +57,7 @@ public class MemoryDataAccess implements DataAccess{
         games.put(data.gameID(), data);
         //listGames(auth);
 
-    };
+    }
 
     public void createAuth(AuthData auth) {
         authorization.add(auth);
@@ -75,13 +75,13 @@ public class MemoryDataAccess implements DataAccess{
         System.out.println(auth + "  --  " + authorization);
         return null;
         //return new AuthData(null,null);
-    };
+    }
     public void deleteAuth(AuthData auth) {
         if(authorization !=null) {
             System.out.println("First " + authorization);
             authorization.removeIf(authorization -> authorization.equals(auth));
             System.out.println("After " + authorization);
         }
-    };
+    }
 
 }

@@ -1,6 +1,7 @@
 import chess.*;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySqlDataAccess;
 import server.*;
 import service.ChessService;
 
@@ -14,8 +15,10 @@ public class Main {
                 port = Integer.parseInt(args[0]);
             }
 
-            DataAccess dataAccess = new MemoryDataAccess();
-
+            DataAccess dataAccess = new MySqlDataAccess();
+            if (args.length >= 2 && args[1].equals("sql")) {
+                dataAccess = new MySqlDataAccess();
+            }
 
             var service = new ChessService(dataAccess);
             var server = new Server();
