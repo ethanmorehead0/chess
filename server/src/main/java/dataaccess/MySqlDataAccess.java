@@ -1,11 +1,9 @@
 package dataaccess;
 
-import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +25,29 @@ public class MySqlDataAccess implements DataAccess{
         configureDatabase();
     }
 
+    private UserData readUser(ResultSet rs) throws SQLException {
+        var username = rs.getString("username");
+        var password = rs.getString("password");
+        var email = rs.getString("email");
+        return new UserData(username, password, email);
+    }
+
+    private GameData readGame(ResultSet rs) throws SQLException {
+        Integer gameID = rs.getInt("id");
+        var whiteUsername = rs.getString("whiteUsername");
+        var blackUsername = rs.getString("blackUsername");
+        var gameName = rs.getString("name");
+        return new GameData(gameID, whiteUsername, blackUsername, gameName);
+    }
+
+    private AuthData readAuth(ResultSet rs) throws SQLException {
+        var authToken = rs.getString("authToken");
+        var username = rs.getString("username");
+        return new AuthData(authToken, username);
+    }
+
+
+
     public void clear() throws ResponseException {
         executeUpdate("TRUNCATE TABLE userdata");
         executeUpdate("TRUNCATE TABLE gamedata");
@@ -37,7 +58,31 @@ public class MySqlDataAccess implements DataAccess{
         var statement= "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
         var id = executeUpdate(statement, user.username(), user.password(), user.email());
     }
-    public UserData getUser(String username) {
+
+
+    //return to here, probably still has lots of problems
+    public UserData getUser(String username1) throws ResponseException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username FROM userdata WHERE username=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username1);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readUser(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return null;
+
+        //var statement= "SELECT (username) from userdata VALUES (?)";
+        //var data = executeUpdate(statement, username);
+        //System.out.println(data);
+        //select * from name
+
+        /*
         if(users!=null) {
             for (UserData user : users) {
                 if (user.username().equals(username)) {
@@ -45,35 +90,42 @@ public class MySqlDataAccess implements DataAccess{
                 }
             }
         }
-        return null;
+        return null;*/
     }
     public int createGame(String username, String gameName) throws ResponseException {
 
         var statement= "INSERT INTO gamedata (gameName, game) VALUES (?, ?)";
         String newGame = "Json new game";
-        var id = executeUpdate(statement, gameName, newGame);
 
-        GameData game = new GameData(gameNumber, null, null, gameName);
-        games.put(gameNumber, game);
-        gameNumber+=1;
-
-        return game.gameID();
+        return executeUpdate(statement, gameName, newGame);
     }
-    public GameData getGame(int gameID) {
-        return games.get(gameID);
+    public GameData getGame(int gameID) throws ResponseException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT id, json FROM pet WHERE id=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readGame(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return null;
 
     }
     public Collection<GameData> listGames(String auth) {
-        System.out.println("1: " + games.values());
         return games.values();
     }
 
-    public void updateGame(String auth, GameData data) {
+    public void updateGame(String auth, GameData data) throws ResponseException {
         //only those that are in game can change
         var game = getGame(data.gameID());
         //game=data;
-        games.remove(game);
-        games.put(data.gameID(), data);
+        //games.remove(game);
+        //games.put(data.gameID(), data);
         //listGames(auth);
 
     }
@@ -81,12 +133,27 @@ public class MySqlDataAccess implements DataAccess{
     public void createAuth(AuthData auth) throws ResponseException {
 
         var statement= "INSERT INTO authdata (authtoken, username) VALUES (?, ?)";
-        var id = executeUpdate(statement, auth.authToken(), auth.username());
+        executeUpdate(statement, auth.authToken(), auth.username());
 
 
     };
 
-    public AuthData getAuth(String auth) {
+    public AuthData getAuth(String auth) throws ResponseException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username FROM authdata WHERE authtoken=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, auth);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readAuth(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return null;
+        /*
         System.out.print("getAuth: ");
         if(authorization !=null) {
             for (AuthData authorization : authorization) {
@@ -97,14 +164,16 @@ public class MySqlDataAccess implements DataAccess{
         }
         System.out.println(auth + "  --  " + authorization);
         return null;
-        //return new AuthData(null,null);
+        //return new AuthData(null,null);*/
     }
-    public void deleteAuth(AuthData auth) {
-        if(authorization !=null) {
+    public void deleteAuth(AuthData auth) throws ResponseException {
+        var statement = "DELETE FROM pet WHERE authtoken=?";
+        executeUpdate(statement, auth);
+        /*if(authorization !=null) {
             System.out.println("First " + authorization);
             authorization.removeIf(authorization -> authorization.equals(auth));
             System.out.println("After " + authorization);
-        }
+        }*/
     }
 
 
