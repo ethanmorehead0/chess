@@ -36,7 +36,7 @@ public class MySqlDataAccess implements DataAccess{
         Integer gameID = rs.getInt("id");
         var whiteUsername = rs.getString("whiteUsername");
         var blackUsername = rs.getString("blackUsername");
-        var gameName = rs.getString("name");
+        var gameName = rs.getString("gameName");
         return new GameData(gameID, whiteUsername, blackUsername, gameName);
     }
 
@@ -101,7 +101,7 @@ public class MySqlDataAccess implements DataAccess{
     }
     public GameData getGame(int gameID) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, json FROM pet WHERE id=?";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName  FROM gameData WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
                 try (var rs = ps.executeQuery()) {
@@ -116,8 +116,22 @@ public class MySqlDataAccess implements DataAccess{
         return null;
 
     }
-    public Collection<GameData> listGames(String auth) {
-        return games.values();
+    public Collection<GameData> listGames(String auth) throws ResponseException {
+        var result = new ArrayList<GameData>();
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName FROM gamedata";
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(readGame(rs));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return result;
+
     }
 
     public void updateGame(String auth, GameData data) throws ResponseException {
@@ -140,7 +154,7 @@ public class MySqlDataAccess implements DataAccess{
 
     public AuthData getAuth(String auth) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username FROM authdata WHERE authtoken=?";
+            var statement = "SELECT authtoken, username FROM authdata WHERE authtoken=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, auth);
                 try (var rs = ps.executeQuery()) {
@@ -167,13 +181,8 @@ public class MySqlDataAccess implements DataAccess{
         //return new AuthData(null,null);*/
     }
     public void deleteAuth(AuthData auth) throws ResponseException {
-        var statement = "DELETE FROM pet WHERE authtoken=?";
-        executeUpdate(statement, auth);
-        /*if(authorization !=null) {
-            System.out.println("First " + authorization);
-            authorization.removeIf(authorization -> authorization.equals(auth));
-            System.out.println("After " + authorization);
-        }*/
+        var statement = "DELETE FROM authdata WHERE authtoken=?";
+        executeUpdate(statement, auth.authToken());
     }
 
 
