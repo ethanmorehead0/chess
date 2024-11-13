@@ -18,11 +18,6 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class MySqlDataAccess implements DataAccess{
-    private int gameNumber=1;
-    private ArrayList<UserData> users = new ArrayList<>();
-    private HashMap<Integer, GameData> games = new HashMap<>();
-    private ArrayList<AuthData> authorization = new ArrayList<>();
-
 
     public MySqlDataAccess() throws ResponseException{
         configureDatabase();
@@ -79,21 +74,6 @@ public class MySqlDataAccess implements DataAccess{
             throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
         return null;
-
-        //var statement= "SELECT (username) from userdata VALUES (?)";
-        //var data = executeUpdate(statement, username);
-        //System.out.println(data);
-        //select * from name
-
-        /*
-        if(users!=null) {
-            for (UserData user : users) {
-                if (user.username().equals(username)) {
-                    return user;
-                }
-            }
-        }
-        return null;*/
     }
     public int createGame(String username, String gameName) throws ResponseException {
 
@@ -106,7 +86,7 @@ public class MySqlDataAccess implements DataAccess{
     }
     public GameData getGame(int gameID) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, whiteUsername, blackUsername, gameName  FROM gameData WHERE id=?";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName FROM gameData WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
                 try (var rs = ps.executeQuery()) {
@@ -140,18 +120,8 @@ public class MySqlDataAccess implements DataAccess{
     }
 
     public void updateGame(String auth, GameData data) throws ResponseException {
-
-
-        var statement= "INSERT INTO gamedata (gameName, game) VALUES (?, ?)";
-
-
-
-        //only those that are in game can change
-        var game = getGame(data.gameID());
-        //game=data;
-        //games.remove(game);
-        //games.put(data.gameID(), data);
-        //listGames(auth);
+        var statement= "UPDATE gamedata SET whiteUsername=?, blackUsername=?, gameName=? WHERE id=?";
+        executeUpdate(statement, data.whiteUsername(), data.blackUsername(), data.gameName(), data.gameID());
 
     }
 
@@ -178,18 +148,6 @@ public class MySqlDataAccess implements DataAccess{
             throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
         }
         return null;
-        /*
-        System.out.print("getAuth: ");
-        if(authorization !=null) {
-            for (AuthData authorization : authorization) {
-                if (authorization.authToken().equals(auth)) {
-                    return authorization;
-                }
-            }
-        }
-        System.out.println(auth + "  --  " + authorization);
-        return null;
-        //return new AuthData(null,null);*/
     }
     public void deleteAuth(AuthData auth) throws ResponseException {
         var statement = "DELETE FROM authdata WHERE authtoken=?";

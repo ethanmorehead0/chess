@@ -18,7 +18,12 @@ public class Server {
     private final ChessService service;
 
     public Server(){
-        service=new ChessService(new MemoryDataAccess());
+        try{
+            service=new ChessService(new MySqlDataAccess());
+        }
+        catch(ResponseException ex){
+            throw new RuntimeException(ex);
+        }
     }
     public Server(ChessService service) {
         this.service=service;
