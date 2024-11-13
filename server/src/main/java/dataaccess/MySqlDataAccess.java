@@ -41,7 +41,7 @@ public class MySqlDataAccess implements DataAccess{
     }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
-        var authToken = rs.getString("authToken");
+        var authToken = rs.getString("authtoken");
         var username = rs.getString("username");
         return new AuthData(authToken, username);
     }
@@ -61,11 +61,11 @@ public class MySqlDataAccess implements DataAccess{
 
 
     //return to here, probably still has lots of problems
-    public UserData getUser(String username1) throws ResponseException {
+    public UserData getUser(String username) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username FROM userdata WHERE username=?";
+            var statement = "SELECT username, password, email FROM userdata WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, username1);
+                ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readUser(rs);
