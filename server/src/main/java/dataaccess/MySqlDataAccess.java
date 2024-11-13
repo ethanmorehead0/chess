@@ -1,6 +1,9 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import exception.ResponseException;
+import model.AllGamesData;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -95,7 +98,9 @@ public class MySqlDataAccess implements DataAccess{
     public int createGame(String username, String gameName) throws ResponseException {
 
         var statement= "INSERT INTO gamedata (gameName, game) VALUES (?, ?)";
-        String newGame = "Json new game";
+        var serializer=new Gson();
+        ChessGame game = new ChessGame();
+        String newGame = serializer.toJson(game);
 
         return executeUpdate(statement, gameName, newGame);
     }
@@ -135,6 +140,12 @@ public class MySqlDataAccess implements DataAccess{
     }
 
     public void updateGame(String auth, GameData data) throws ResponseException {
+
+
+        var statement= "INSERT INTO gamedata (gameName, game) VALUES (?, ?)";
+
+
+
         //only those that are in game can change
         var game = getGame(data.gameID());
         //game=data;
