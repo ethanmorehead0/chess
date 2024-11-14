@@ -183,20 +183,3 @@ public class MySqlDataTest {
 
 
 }
-/*
-public boolean checkPassword(String username, String password) throws ResponseException {
-        // read the previously hashed password from the database
-        var hashedPassword = getUser(username).password();
-
-        return BCrypt.checkpw(password, hashedPassword);
-    }
-
-
-
-    public boolean checkPassword(String username, String password) throws ResponseException {
-        // read the previously hashed password from the database
-        var hashedPassword = getUser(username).password();
-
-        return BCrypt.checkpw(password, hashedPassword);
-    }
-*/
