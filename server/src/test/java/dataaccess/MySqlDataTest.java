@@ -1,7 +1,5 @@
 package dataaccess;
 
-import chess.ChessGame;
-import com.google.gson.Gson;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
@@ -9,34 +7,8 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import passoff.model.TestUser;
 import passoff.server.TestServerFacade;
-import server.Server;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
-
-//import chess.ChessGame;
-//import com.google.gson.Gson;
-//import exception.ResponseException;
-//import model.AllGamesData;
-//import model.AuthData;
-//import model.GameData;
-//import model.UserData;
-//
-//import java.util.ArrayList;
-//import java.util.Collection;
-//import java.util.HashMap;
-//
-//import java.sql.*;
-//
-//import static java.sql.Statement.RETURN_GENERATED_KEYS;
-//import static java.sql.Types.NULL;
 public class MySqlDataTest {
     private static final TestUser TEST_USER = new TestUser("ExistingUser", "existingUserPassword", "eu@mail.com");
 
@@ -153,4 +125,78 @@ public class MySqlDataTest {
         Assertions.assertEquals("name",dataAccess.getGame(id).gameName());
     }
 
+    @Test
+    @DisplayName("Create Auth Test")
+    @Order(13)
+    public void createAuthTest() throws ResponseException {
+        Assertions.assertDoesNotThrow(() -> dataAccess.createAuth(new AuthData("auth","username")));
+    }
+
+    @Test
+    @DisplayName("invalid create Auth Test")
+    @Order(14)
+    public void invalidCreateAuthTest() throws ResponseException {
+        Assertions.assertThrows(ResponseException.class, () -> dataAccess.createAuth(new AuthData(null,"username")));
+    }
+
+    @Test
+    @DisplayName("get Auth Test")
+    @Order(15)
+    public void getAuthTest() throws ResponseException {
+        dataAccess.createAuth(new AuthData("auth","username"));
+
+        Assertions.assertDoesNotThrow(() -> dataAccess.getAuth("auth"));
+
+    }
+
+    @Test
+    @DisplayName("invalid get Auth Test")
+    @Order(16)
+    public void invalidUserGetAuthTest() throws ResponseException {
+        Assertions.assertNull(dataAccess.getAuth("invalidName"));
+    }
+
+    @Test
+    @DisplayName("delete Auth Test")
+    @Order(17)
+    public void deleteAuthTest() throws ResponseException {
+        dataAccess.createAuth(new AuthData("auth","username"));
+        Assertions.assertNotNull(dataAccess.getAuth("auth"));
+        dataAccess.deleteAuth(new AuthData("auth","username"));
+        Assertions.assertNull(dataAccess.getAuth("auth"));
+    }
+    @Test
+    @DisplayName("check Password Test")
+    @Order(18)
+    public void checkPasswordTest() throws ResponseException {
+        dataAccess.createUser(new UserData("user","password","email"));
+        Assertions.assertTrue(dataAccess.checkPassword("user", "password"));
+    }
+
+    @Test
+    @DisplayName("invalid check Password Test")
+    @Order(19)
+    public void invalidCheckPasswordTest() throws ResponseException {
+        dataAccess.createUser(new UserData("user","password","email"));
+        Assertions.assertFalse(dataAccess.checkPassword("user", "incorrect password"));
+    }
+
+
 }
+/*
+public boolean checkPassword(String username, String password) throws ResponseException {
+        // read the previously hashed password from the database
+        var hashedPassword = getUser(username).password();
+
+        return BCrypt.checkpw(password, hashedPassword);
+    }
+
+
+
+    public boolean checkPassword(String username, String password) throws ResponseException {
+        // read the previously hashed password from the database
+        var hashedPassword = getUser(username).password();
+
+        return BCrypt.checkpw(password, hashedPassword);
+    }
+*/
