@@ -6,7 +6,8 @@ public class Repl{
     private final PreloginClient preloginClient;
 
     public Repl(String serverUrl) {
-        preloginClient = new PreloginClient();}
+        preloginClient = new PreloginClient(serverUrl);
+    }
 
     public void run() {
         System.out.println("\uD83D\uDC36 Welcome to the Chess. Sign in to start.");
