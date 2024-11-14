@@ -20,6 +20,27 @@ public class ServerFacade {
         return this.makeRequest("POST", path, data, AuthData.class);
     }
 
+    public AuthData login(LoginRequest req) throws ResponseException {
+        var path = "/session";
+        return this.makeRequest("POST", path, req, AuthData.class);
+    }
+
+    public void logout(LogoutRequest req) throws ResponseException {
+        var path = "/session";
+        this.makeRequest("DELETE", path, req, null);
+    }
+
+    public AllGamesData listGames(AuthData auth) throws ResponseException {
+        var path = "/session";
+        return this.makeRequest("DELETE", path, auth, AllGamesData.class);
+    }
+
+    public void joinGame(JoinGameRequest req) throws ResponseException {
+        var path = "/game";
+        this.makeRequest("PUT", path, req, null);
+    }
+
+
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
