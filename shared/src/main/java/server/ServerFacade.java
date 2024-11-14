@@ -31,8 +31,8 @@ public class ServerFacade {
     }
 
     public AllGamesData listGames(AuthData auth) throws ResponseException {
-        var path = "/session";
-        return this.makeRequest("DELETE", path, auth, AllGamesData.class);
+        var path = "/game";
+        return this.makeRequest("GET", path, auth, AllGamesData.class);
     }
 
     public void joinGame(JoinGameRequest req) throws ResponseException {
@@ -40,6 +40,16 @@ public class ServerFacade {
         this.makeRequest("PUT", path, req, null);
     }
 
+    public CreateGameResult createGame(CreateGameRequest req) throws ResponseException {
+        var path = "/game";
+        return this.makeRequest("POST", path, req, CreateGameResult.class);
+    }
+
+
+    public void clear() throws ResponseException {
+        var path = "/db";
+        this.makeRequest("DELETE", path, null, null);
+    }
 
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
