@@ -87,7 +87,7 @@ public class MySqlDataAccess implements DataAccess{
     }
     public GameData getGame(int gameID) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT id, whiteUsername, blackUsername, gameName FROM gameData WHERE id=?";
+            var statement = "SELECT id, whiteUsername, blackUsername, gameName FROM gamedata WHERE id=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
                 try (var rs = ps.executeQuery()) {
