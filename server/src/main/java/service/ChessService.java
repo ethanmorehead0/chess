@@ -26,7 +26,7 @@ public class ChessService {
     public AuthData login(LoginRequest req) throws ResponseException {
         UserData user=dataAccess.getUser(req.username());
 
-        if(user!=null && user.password().equals(req.password())){
+        if(user!=null && dataAccess.checkPassword(req.username(), req.password())){
             String newAuth= createAuthID();
             dataAccess.createAuth(new AuthData(newAuth, user.username()));
             return new AuthData(newAuth, user.username());
@@ -82,7 +82,6 @@ public class ChessService {
     public void joinGame(String authToken, JoinGameRequest req) throws ResponseException{
         AuthData auth = dataAccess.getAuth(authToken);
 
-        System.out.println(req.gameID());
         if(req.playerColor() == null || req.gameID() == null){
             throw new ResponseException(400,"unauthorized");
         }
@@ -104,7 +103,6 @@ public class ChessService {
         GameData newData;
         //only works with white*******
         if(req.playerColor()== ChessGame.TeamColor.WHITE){
-            System.out.println();
             newData= new GameData(data.gameID(),auth.username(),data.blackUsername(),data.gameName());
         }else{
             newData= new GameData(data.gameID(),data.whiteUsername(),auth.username(),data.gameName());

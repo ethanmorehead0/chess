@@ -20,8 +20,7 @@ public class Server {
     public Server(){
         try{
             service=new ChessService(new MySqlDataAccess());
-        }
-        catch(ResponseException ex){
+        }catch(ResponseException ex){
             throw new RuntimeException(ex);
         }
     }

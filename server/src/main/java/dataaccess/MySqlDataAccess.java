@@ -7,6 +7,7 @@ import model.AllGamesData;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,11 +55,11 @@ public class MySqlDataAccess implements DataAccess{
 
     public void createUser(UserData user) throws ResponseException {
         var statement= "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
-        var id = executeUpdate(statement, user.username(), user.password(), user.email());
+        String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+        var id = executeUpdate(statement, user.username(), hashedPassword, user.email());
     }
 
 
-    //return to here, probably still has lots of problems
     public UserData getUser(String username) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, password, email FROM userdata WHERE username=?";
@@ -155,6 +156,13 @@ public class MySqlDataAccess implements DataAccess{
     }
 
 
+    public boolean checkPassword(String username, String password) throws ResponseException {
+        // read the previously hashed password from the database
+        var hashedPassword = getUser(username).password();
+
+        return BCrypt.checkpw(password, hashedPassword);
+    }
+
 
     private int executeUpdate(String statement, Object... params) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
@@ -187,11 +195,11 @@ public class MySqlDataAccess implements DataAccess{
               `whiteUsername` varchar(256) DEFAULT NULL,
               `blackUsername` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL DEFAULT 'GAME',
-              `json` text,
+              `game` text,
               PRIMARY KEY (`id`),
               KEY `type` (`blackUsername`),
               KEY `name` (`whiteUsername`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
             """
             CREATE TABLE IF NOT EXISTS `userdata` (

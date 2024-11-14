@@ -78,5 +78,10 @@ public class MemoryDataAccess implements DataAccess{
             authorization.removeIf(authorization -> authorization.equals(auth));
         }
     }
+    public boolean checkPassword(String username, String password){
+
+        UserData user=getUser(username);
+        return user.password().equals(password);
+    }
 
 }

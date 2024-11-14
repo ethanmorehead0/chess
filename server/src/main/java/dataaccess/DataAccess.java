@@ -16,5 +16,5 @@ public interface DataAccess {
     void createAuth(AuthData auth) throws ResponseException;
     AuthData getAuth(String auth) throws ResponseException;
     void deleteAuth(AuthData authToken) throws ResponseException;
-
+    boolean checkPassword(String username, String password) throws ResponseException;
 }
