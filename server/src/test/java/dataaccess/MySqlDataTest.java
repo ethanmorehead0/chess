@@ -131,7 +131,7 @@ public class MySqlDataTest {
     @Test
     @DisplayName("list Games Test")
     @Order(10)
-    public void ListGamesTest() throws ResponseException {
+    public void listGamesTest() throws ResponseException {
         Assertions.assertDoesNotThrow(() -> dataAccess.listGames("auth"));
         Assertions.assertNotNull(dataAccess.listGames("auth"));
     }
@@ -145,12 +145,12 @@ public class MySqlDataTest {
     @Test
     @DisplayName("Update Games Test")
     @Order(12)
-    public void UpdateGameTest() throws ResponseException {
-        int ID = dataAccess.createGame("user","game");
-        Assertions.assertDoesNotThrow(() -> dataAccess.updateGame("auth",new GameData(ID,"white",null,"name")));
-        Assertions.assertEquals("white",dataAccess.getGame(ID).whiteUsername());
-        Assertions.assertNull(dataAccess.getGame(ID).blackUsername());
-        Assertions.assertEquals("name",dataAccess.getGame(ID).gameName());
+    public void updateGameTest() throws ResponseException {
+        int id = dataAccess.createGame("user","game");
+        Assertions.assertDoesNotThrow(() -> dataAccess.updateGame("auth",new GameData(id,"white",null,"name")));
+        Assertions.assertEquals("white",dataAccess.getGame(id).whiteUsername());
+        Assertions.assertNull(dataAccess.getGame(id).blackUsername());
+        Assertions.assertEquals("name",dataAccess.getGame(id).gameName());
     }
 
 }
