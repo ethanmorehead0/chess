@@ -14,7 +14,7 @@ public class PreloginClient {
         server = new ServerFacade(serverUrl);
     }
 
-    public String eval(String input) {
+    public String[] eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -28,29 +28,30 @@ public class PreloginClient {
             };
 
         } catch (ResponseException ex) {
-            return ex.getMessage();
+            return new String[]{"prelogin", ex.getMessage()};
         }
     }
 
 
 
-    public String login(String... s) throws ResponseException{
-        return "signIn";
+    public String[] login(String... s) throws ResponseException{
+
+        return new String[]{"postLogin","Welcome "+ Arrays.toString(s)};
     }
-    public String register(String... s) throws ResponseException{
-        return "register";
+    public String[] register(String... s) throws ResponseException{
+        return new String[]{"postLogin","Welcome " + Arrays.toString(s)};
     }
-    public String quit() throws ResponseException{
-        return "quit";
+    public String[] quit() throws ResponseException{
+        return new String[]{"quit",""};
     }
-    public String help() {
-        return """
+    public String[] help() {
+        return new String[]{"prelogin","""
             Options:
             - Login: "l", "login" <USERNAME> <PASSWORD>
             - Register: "r", "register" <USERNAME> <PASSWORD> <EMAIL>
             - Exit/quit: "q", "quit"
             - Help: "h", "help"
-            """;
+            """};
     }
 
 }

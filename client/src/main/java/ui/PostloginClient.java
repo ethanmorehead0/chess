@@ -15,7 +15,7 @@ public class PostloginClient {
         server = new ServerFacade(serverUrl);
     }
 
-    public String eval(String input) {
+    public String[] eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -25,21 +25,21 @@ public class PostloginClient {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return ex.getMessage();
+            return new String[]{"postLogin", ex.getMessage()};
         }
     }
 
 
 
-    public String help() throws ResponseException {
-        return """
+    public String[] help() throws ResponseException {
+        return new String[]{"postLogin","""
             Options:
             - List current games: "l", "list"
             - Create a new game: "c", "create" <GAME NAME>
             - Join a game: "j", "join" <GAME ID> <COLOR>
             - Watch a game: "Logout"
             - Help: "h", "help"
-            """;
+            """};
     }
 
 }
