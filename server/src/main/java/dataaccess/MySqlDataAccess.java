@@ -3,7 +3,6 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.AllGamesData;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -11,7 +10,6 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 import java.sql.*;
 

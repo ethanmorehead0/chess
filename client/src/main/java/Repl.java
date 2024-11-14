@@ -10,6 +10,7 @@ public class Repl{
 
     public void run() {
         System.out.println("\uD83D\uDC36 Welcome to the Chess. Sign in to start.");
+/*
         System.out.print(preloginClient.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -27,7 +28,9 @@ public class Repl{
             }
         }
         System.out.println();
+    */
     }
+
 
 
     private void printPrompt() {
