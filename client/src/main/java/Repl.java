@@ -1,6 +1,8 @@
 import ui.*;
+import static ui.EscapeSequences.*;
 
 import java.util.Scanner;
+
 
 public class Repl{
     private final PreloginClient preloginClient;
@@ -11,7 +13,7 @@ public class Repl{
 
     public void run() {
         System.out.println("\uD83D\uDC36 Welcome to the Chess. Sign in to start.");
-/*
+
         System.out.print(preloginClient.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -22,14 +24,14 @@ public class Repl{
 
             try {
                 result = preloginClient.eval(line);
-                System.out.print(BLUE + result);
+                System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
             }
         }
         System.out.println();
-    */
+
     }
 
 

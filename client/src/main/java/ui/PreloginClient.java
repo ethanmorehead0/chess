@@ -20,9 +20,13 @@ public class PreloginClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                //case "signin" -> signIn(params);
+                case "login", "l" -> login(params);
+                case "register", "r" -> register(params);
+                case "quit", "q" -> quit();
+                case "help", "h" -> help();
                 default -> help();
             };
+
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
@@ -30,12 +34,22 @@ public class PreloginClient {
 
 
 
-    public String help() throws ResponseException {
+    public String login(String... s) throws ResponseException{
+        return "signIn";
+    }
+    public String register(String... s) throws ResponseException{
+        return "register";
+    }
+    public String quit() throws ResponseException{
+        return "quit";
+    }
+    public String help() {
         return """
-            - signIn <USERNAME>
-            - "r", "register" <USERNAME> <PASSWORD> <EMAIL>
-            - "q", "quit"
-            - "h", "help"
+            Options:
+            - Login: "l", "login" <USERNAME> <PASSWORD>
+            - Register: "r", "register" <USERNAME> <PASSWORD> <EMAIL>
+            - Exit/quit: "q", "quit"
+            - Help: "h", "help"
             """;
     }
 
