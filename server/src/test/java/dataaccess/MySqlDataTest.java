@@ -33,11 +33,6 @@ public class MySqlDataTest {
 
 
 
-
-
-    /*public MySqlDataAccess() throws ResponseException {
-        configureDatabase();
-    }*/
     @Test
     @DisplayName("Clear Test")
     @Order(1)
