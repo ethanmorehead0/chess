@@ -21,7 +21,7 @@ public class ServerFacadeTests {
         System.out.println("Started test HTTP server on " + port);
 
 
-        var serverUrl = "http://localhost:8080";
+        var serverUrl = "http://localhost:"+port;
         serverFacade=new ServerFacade(serverUrl);
 
     }
