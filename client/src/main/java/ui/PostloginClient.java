@@ -54,7 +54,7 @@ public class PostloginClient {
             - List current games: "l", "list"
             - Create a new game: "c", "create" <GAME NAME>
             - Join a game: "j", "join" <GAME ID> <COLOR>
-            - Watch a game: "Logout"
+            - Watch a game: "logout"
             - Help: "h", "help"
             """};
     }
