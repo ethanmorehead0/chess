@@ -101,8 +101,8 @@ public class ChessClient {
                 case "list", "l" -> list();
                 case "create", "c" -> create(params);
                 case "join", "j" -> join(params);
-                /*case "watch", "w" -> watch();
-                case "logout" -> logout();*/
+                /*case "watch", "w" -> watch();*/
+                case "logout" -> logout();
                 case "help", "h" -> postLoginHelp();
                 default -> postLoginHelp();
             };
@@ -137,6 +137,20 @@ public class ChessClient {
         }
         throw new ResponseException(400, "Expected: <GAME ID> <COLOR>");
     }
+    public String watch(String... params) throws ResponseException{
+
+        return "Watching: '"+params[0]+"'";
+
+    }
+
+    public String logout() throws ResponseException{
+        server.logout();
+        stage="preLogin";
+        auth=new AuthData(null, null);
+        return "Logged out";
+
+    }
+
 
     public String postLoginHelp() throws ResponseException {
         return """
@@ -145,7 +159,7 @@ public class ChessClient {
             - Create a new game: "c", "create" <GAME NAME>
             - Join a game: "j", "join" <GAME ID> <COLOR>
             - Watch a game: "w", "watch" <GAME ID>
-            - Logout: "l", "logout"
+            - Logout: "logout"
             - Help: "h", "help"
             """;
     }

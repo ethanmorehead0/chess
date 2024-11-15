@@ -30,9 +30,9 @@ public class ServerFacade {
         return auth;
     }
 
-    public void logout(LogoutRequest req) throws ResponseException {
+    public void logout() throws ResponseException {
         var path = "/session";
-        this.makeRequest("DELETE", path, req, null);
+        this.makeRequest("DELETE", path, null, null);
     }
 
     public AllGamesData listGames() throws ResponseException {
