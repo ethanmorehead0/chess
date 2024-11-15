@@ -171,18 +171,28 @@ public class ChessClient {
 
 
     public String printBoard(ChessGame.TeamColor color) throws ResponseException {
+        ChessGame game = new ChessGame();
         String[][] toPrint ={
-                {SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY, " A\u2003", " B\u2003", " C\u2003", " D\u2003", " E\u2003", " F\u2003", " G\u2003", " H\u2003", EMPTY},
+                {SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY, " A\u2003", " B\u2003", " C\u2003", " D\u2003", " E\u2003", " F\u2003", " G\u2003", " H\u2003", SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY},
 
-                {EMPTY, " A\u2003", " B\u2003", " C\u2003", " D\u2003", " E\u2003", " F\u2003", " G\u2003", " H\u2003", SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY}
+                {SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY, " A\u2003", " B\u2003", " C\u2003", " D\u2003", " E\u2003", " F\u2003", " G\u2003", " H\u2003", SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY}
         };
 
         StringBuilder output= new StringBuilder();
+
         for(String[] rows:toPrint){
             for(String space: rows){
-                output.append(space);
+                if(color== ChessGame.TeamColor.BLACK) {
+                    output.append(space);
+                }else {
+                    output.insert(0, space);
+                }
             }
-            output.append("\n");
+            if(color== ChessGame.TeamColor.BLACK) {
+                output.append(RESET_BG_COLOR + "\n");
+            }else {
+                output.insert(0, RESET_BG_COLOR + "\n");
+            }
         }
 
         return output.toString() + RESET_BG_COLOR;
