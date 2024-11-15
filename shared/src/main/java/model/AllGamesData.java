@@ -13,8 +13,9 @@ public record AllGamesData (Collection<GameData> games) {
     @Override
     public String toString() {
         StringBuilder output= new StringBuilder();
+        int gameNumber=1;
         for(GameData game:games){
-            output.append(game).append("\n");
+            output.append(gameNumber).append(". ").append(game).append("\n");
         }
         return output.toString();
     }

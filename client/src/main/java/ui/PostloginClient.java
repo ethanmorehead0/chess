@@ -3,7 +3,6 @@ package ui;
 
 import java.util.Arrays;
 
-import com.google.gson.Gson;
 import exception.ResponseException;
 import model.*;
 import server.ServerFacade;
@@ -16,7 +15,7 @@ public class PostloginClient {
         server = new ServerFacade(serverUrl);
     }
 
-    public String[] eval(String input) {
+    public String postLoginEval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -31,32 +30,32 @@ public class PostloginClient {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return new String[]{"postLogin", ex.getMessage()};
+            return ex.getMessage();
         }
     }
 
-    public String[] list() throws ResponseException{
-        var output = server.listGames();
-        return new String[]{"postLogin","Games: \n" + output};
+    public String list() throws ResponseException{
+        var output = server.listGames(new AuthData("auth","username"));
+        return "Games: \n" + output;
     }
 
-    public String[] create(String... params) throws ResponseException{
+    public String create(String... params) throws ResponseException{
         if (params.length >= 1) {
             var output = server.createGame(new CreateGameRequest(params[0]));
-            return new String[]{"postLogin","Games: \n"};
+            return "Games: \n";
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
     }
 
-    public String[] help() throws ResponseException {
-        return new String[]{"postLogin","""
+    public String help() throws ResponseException {
+        return """
             Options:
             - List current games: "l", "list"
             - Create a new game: "c", "create" <GAME NAME>
             - Join a game: "j", "join" <GAME ID> <COLOR>
             - Watch a game: "logout"
             - Help: "h", "help"
-            """};
+            """;
     }
 
 }

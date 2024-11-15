@@ -10,6 +10,7 @@ import java.net.*;
 public class ServerFacade {
 
     private final String serverUrl;
+    private AuthData auth;
 
     public ServerFacade(String url) {
         serverUrl = url;
@@ -17,12 +18,14 @@ public class ServerFacade {
 
     public AuthData registration(UserData data) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, data, AuthData.class);
+        auth = this.makeRequest("POST", path, data, AuthData.class)
+        return auth;
     }
 
     public AuthData login(LoginRequest req) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, req, AuthData.class);
+        auth = this.makeRequest("POST", path, req, AuthData.class)
+        return auth;
     }
 
     public void logout(LogoutRequest req) throws ResponseException {

@@ -5,12 +5,12 @@ import java.util.Scanner;
 
 
 public class Repl{
-    private final PreloginClient preloginClient;
+    private final ChessClient chessClient;
     private final PostloginClient postloginClient;
     //private final GameplayClient gameplayClient;
 
     public Repl(String serverUrl) {
-        preloginClient = new PreloginClient(serverUrl);
+        chessClient = new ChessClient(serverUrl);
         postloginClient = new PostloginClient(serverUrl);
         //gameplayClient = new GameplayClient(serverUrl);
     }
@@ -18,31 +18,19 @@ public class Repl{
     public void run() {
         System.out.println("\uD83D\uDC36 Welcome to the Chess. Sign in to start.");
 
-        System.out.print(SET_TEXT_COLOR_BLUE + preloginClient.help()[1]);
+        System.out.print(SET_TEXT_COLOR_BLUE + chessClient.preloginHelp());
 
         Scanner scanner = new Scanner(System.in);
-        String[] result = {"", ""};
+        String result = "";
         String client="prelogin";
 
-        while (!result[0].equals("quit")) {
+        while (!result.equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
 
             try {
-                switch (client) {
-                    case "prelogin" -> {
-                        result = preloginClient.eval(line);
-                        client = result[0];
-                    }
-                    case "postLogin" -> {
-                        result = postloginClient.eval(line);
-                        client = result[0];
-                    }
-                    case "game" -> {
-
-                    }
-                }
-                System.out.print(SET_TEXT_COLOR_BLUE + result[1]);
+                result = chessClient.eval(line);
+                System.out.print(SET_TEXT_COLOR_BLUE + result);
 
             } catch (Throwable e) {
                 var msg = e.toString();
