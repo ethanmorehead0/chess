@@ -207,10 +207,12 @@ public class ChessClient {
                 ChessPiece piece = board.getPiece(new ChessPosition(i,j));
                 if(piece!=null) {
                     if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
-                        printPieces(line, j, piece, SET_TEXT_COLOR_WHITE, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_PAWN);
+                        line[j] += SET_TEXT_COLOR_WHITE;
+                        printPieces(line, j, piece, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_PAWN);
                     }
                     else {
-                        printPieces(line, j, piece, SET_TEXT_COLOR_BLACK, BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_PAWN);
+                        line[j] += SET_TEXT_COLOR_BLACK;
+                        printPieces(line, j, piece, BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_PAWN);
                     }
                 }
                 else{
@@ -230,15 +232,15 @@ public class ChessClient {
         return output.toString() + RESET_BG_COLOR;
     }
 
-    private void printPieces(String[] line, int j, ChessPiece piece, String setTextColorWhite, String rook, String knight, String bishop, String queen, String king, String pawn) {
-        line[j] += setTextColorWhite;
+    private void printPieces(String[] line, int j, ChessPiece piece, String r, String kn, String b, String q, String ki, String p) {
+
         switch (piece.getPieceType()) {
-            case ROOK -> line[j] += rook;
-            case KNIGHT -> line[j] += knight;
-            case BISHOP -> line[j] += bishop;
-            case QUEEN -> line[j] += queen;
-            case KING -> line[j] += king;
-            case PAWN -> line[j] += pawn;
+            case ROOK -> line[j] += r;
+            case KNIGHT -> line[j] += kn;
+            case BISHOP -> line[j] += b;
+            case QUEEN -> line[j] += q;
+            case KING -> line[j] += ki;
+            case PAWN -> line[j] += p;
 
         }
     }
