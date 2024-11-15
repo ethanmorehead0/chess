@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import model.*;
 import server.ServerFacade;
 
 public class PreloginClient {
@@ -34,12 +35,22 @@ public class PreloginClient {
 
 
 
-    public String[] login(String... s) throws ResponseException{
+    public String[] login(String... params) throws ResponseException{
+        if (params.length >= 2) {
+            var output = server.login(new LoginRequest(params[0],params[1]));
+            return new String[]{"postLogin","Welcome " + params[0]};
+        }
+        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
 
-        return new String[]{"postLogin","Welcome "+ Arrays.toString(s)};
+
     }
-    public String[] register(String... s) throws ResponseException{
-        return new String[]{"postLogin","Welcome " + Arrays.toString(s)};
+    public String[] register(String... params) throws ResponseException{
+        if (params.length >= 3) {
+            var output = server.registration(new UserData(params[0], params[1], params[2]));
+
+            return new String[]{"postLogin","Welcome " + params[0] + "/n" + help()[1]};
+        }
+        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
     public String[] quit() throws ResponseException{
         return new String[]{"quit",""};

@@ -32,18 +32,18 @@ public class ChessService {
             return new AuthData(newAuth, user.username());
         }
         else{
-            throw new ResponseException(401,"Error: unauthorized");
+            throw new ResponseException(401,"unauthorized");
         }
     }
     public void logout(String req) throws ResponseException {
         if(req!=null){
             if(dataAccess.getAuth(req)==null){
-                throw new ResponseException(401, "Error: unauthorized");
+                throw new ResponseException(401, "unauthorized");
             }
             dataAccess.deleteAuth(dataAccess.getAuth(req));
         }else{
 
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "unauthorized");
         }
     }
 
@@ -65,7 +65,7 @@ public class ChessService {
 
     public AllGamesData listGames(String auth) throws ResponseException {
         if(dataAccess.getAuth(auth)==null){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "unauthorized");
         }
 
         return new AllGamesData(dataAccess.listGames(auth));
@@ -74,7 +74,7 @@ public class ChessService {
     public CreateGameResult createGame(String authToken, String name) throws ResponseException{
         AuthData auth = dataAccess.getAuth(authToken);
         if(auth==null){
-            throw new ResponseException(401,"Error: unauthorized");
+            throw new ResponseException(401,"unauthorized");
         }
         return new CreateGameResult(dataAccess.createGame(auth.username(), name));
     }
@@ -86,18 +86,18 @@ public class ChessService {
             throw new ResponseException(400,"unauthorized");
         }
         if(auth==null){
-            throw new ResponseException(401,"1. unauthorized");
+            throw new ResponseException(401,"unauthorized");
         }
 
         GameData data = dataAccess.getGame(req.gameID());
         if(data==null){
-            throw new ResponseException(403,"Error: already taken");
+            throw new ResponseException(403,"username already taken");
         }
         if((req.playerColor().equals(ChessGame.TeamColor.BLACK) && data.blackUsername()!=null)){
-            throw new ResponseException(403,"Error: already taken");
+            throw new ResponseException(403,"username already taken");
         }
         if((req.playerColor() == ChessGame.TeamColor.WHITE && data.whiteUsername()!=null)){
-            throw new ResponseException(403,"Error: already taken");
+            throw new ResponseException(403,"username already taken");
         }
 
         GameData newData;

@@ -47,6 +47,8 @@ public class Repl{
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
+                System.out.print(msg);
+                System.out.print(msg.getClass());
             }
         }
 
