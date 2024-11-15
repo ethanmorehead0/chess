@@ -12,7 +12,7 @@ public class Repl{
     }
 
     public void run() {
-        System.out.println("\uD83D\uDC36 Welcome to the Chess. Sign in to start.");
+        System.out.println("Welcome to Chess. Login to start.");
 
         System.out.print(SET_TEXT_COLOR_BLUE + chessClient.preloginHelp());
 
