@@ -22,7 +22,6 @@ public class Repl{
 
         Scanner scanner = new Scanner(System.in);
         String result = "";
-        String client="prelogin";
 
         while (!result.equals("quit")) {
             printPrompt();
@@ -35,8 +34,6 @@ public class Repl{
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
-                System.out.print(msg);
-                System.out.print(msg.getClass());
             }
         }
 

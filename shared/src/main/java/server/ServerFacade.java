@@ -6,11 +6,13 @@ import model.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 public class ServerFacade {
 
     private final String serverUrl;
-    private AuthData auth;
+    private AuthData auth = new AuthData(null, null);
+    private AllGamesData lastListedGameSet = new AllGamesData(new ArrayList<>());
 
     public ServerFacade(String url) {
         serverUrl = url;
@@ -18,13 +20,13 @@ public class ServerFacade {
 
     public AuthData registration(UserData data) throws ResponseException {
         var path = "/user";
-        auth = this.makeRequest("POST", path, data, AuthData.class)
+        auth = this.makeRequest("POST", path, data, AuthData.class);
         return auth;
     }
 
     public AuthData login(LoginRequest req) throws ResponseException {
         var path = "/session";
-        auth = this.makeRequest("POST", path, req, AuthData.class)
+        auth = this.makeRequest("POST", path, req, AuthData.class);
         return auth;
     }
 
@@ -33,12 +35,19 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, req, null);
     }
 
-    public AllGamesData listGames(AuthData auth) throws ResponseException {
+    public AllGamesData listGames() throws ResponseException {
         var path = "/game";
-        return this.makeRequest("GET", path, auth, AllGamesData.class);
+        lastListedGameSet = this.makeRequest("GET", path, null, AllGamesData.class);
+
+        return lastListedGameSet;
     }
 
     public void joinGame(JoinGameRequest req) throws ResponseException {
+        if(req.gameID()>lastListedGameSet.games().size() || req.gameID()<=0){
+            throw new ResponseException(401,"Invalid Game ID");
+        }
+        int gameID= lastListedGameSet.games().get(req.gameID()).gameID();
+        req= new JoinGameRequest(req.playerColor(), gameID);
         var path = "/game";
         this.makeRequest("PUT", path, req, null);
     }
@@ -61,6 +70,8 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
+            http.setRequestProperty("Authorization", auth.authToken());
 
             writeBody(request, http);
             http.connect();

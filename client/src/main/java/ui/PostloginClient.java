@@ -35,7 +35,7 @@ public class PostloginClient {
     }
 
     public String list() throws ResponseException{
-        var output = server.listGames(new AuthData("auth","username"));
+        var output = server.listGames();
         return "Games: \n" + output;
     }
 

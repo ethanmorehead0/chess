@@ -4,6 +4,7 @@ import dataaccess.DataAccess;
 import exception.ResponseException;
 import model.*;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 
@@ -68,7 +69,7 @@ public class ChessService {
             throw new ResponseException(401, "unauthorized");
         }
 
-        return new AllGamesData(dataAccess.listGames(auth));
+        return new AllGamesData((ArrayList<GameData>) dataAccess.listGames(auth));
     }
 
     public CreateGameResult createGame(String authToken, String name) throws ResponseException{

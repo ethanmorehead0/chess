@@ -2,6 +2,7 @@ package ui;
 
 import java.util.Arrays;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import model.*;
 import server.ServerFacade;
@@ -18,7 +19,6 @@ public class ChessClient {
 
     public String eval(String input){
         String result="";
-        System.out.println(stage);
         switch (stage) {
             case "preLogin" -> {
                 result = preloginEval(input);
@@ -100,8 +100,8 @@ public class ChessClient {
             return switch (cmd.toLowerCase()) {
                 case "list", "l" -> list();
                 case "create", "c" -> create(params);
-                /*case "join", "j" -> join();
-                case "watch", "w" -> watch();
+                case "join", "j" -> join(params);
+                /*case "watch", "w" -> watch();
                 case "logout" -> logout();*/
                 case "help", "h" -> postLoginHelp();
                 default -> postLoginHelp();
@@ -112,16 +112,30 @@ public class ChessClient {
     }
 
     public String list() throws ResponseException{
-        var output = server.listGames(new AuthData("auth","username"));
+        var output = server.listGames();
         return "Games: \n" + output;
     }
 
     public String create(String... params) throws ResponseException{
         if (params.length >= 1) {
             var output = server.createGame(new CreateGameRequest(params[0]));
-            return "Games: \n";
+            return "Created: '"+params[0]+"'";
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
+    }
+
+    public String join(String... params) throws ResponseException{
+        if (params.length >= 2) {
+            if(params[1].equalsIgnoreCase("black")){
+                server.joinGame(new JoinGameRequest(ChessGame.TeamColor.BLACK, Integer.parseInt(params[0])));
+            }else if(params[1].equalsIgnoreCase("white")){
+                server.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, Integer.parseInt(params[0])));
+            }else{
+                throw new ResponseException(400,"Expected: <GAME ID> <COLOR>");
+            }
+            return "Joined: '"+params[0]+"'";
+        }
+        throw new ResponseException(400, "Expected: <GAME ID> <COLOR>");
     }
 
     public String postLoginHelp() throws ResponseException {
@@ -130,7 +144,8 @@ public class ChessClient {
             - List current games: "l", "list"
             - Create a new game: "c", "create" <GAME NAME>
             - Join a game: "j", "join" <GAME ID> <COLOR>
-            - Watch a game: "logout"
+            - Watch a game: "w", "watch" <GAME ID>
+            - Logout: "l", "logout"
             - Help: "h", "help"
             """;
     }
