@@ -2,7 +2,10 @@ package ui;
 
 import java.util.Arrays;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ResponseException;
 import model.*;
 import server.ServerFacade;
@@ -104,7 +107,7 @@ public class ChessClient {
                 case "list", "l" -> list();
                 case "create", "c" -> create(params);
                 case "join", "j" -> join(params);
-                /*case "watch", "w" -> watch();*/
+                case "watch", "w" -> watch(params);
                 case "logout" -> logout();
                 case "help", "h" -> postLoginHelp();
                 default -> postLoginHelp();
@@ -171,31 +174,89 @@ public class ChessClient {
 
 
     public String printBoard(ChessGame.TeamColor color) throws ResponseException {
-        ChessGame game = new ChessGame();
-        String[][] toPrint ={
-                {SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY, " A\u2003", " B\u2003", " C\u2003", " D\u2003", " E\u2003", " F\u2003", " G\u2003", " H\u2003", SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY},
+        ChessBoard board = new ChessGame().getBoard();
+        String[][] toPrint = new String[10][10];
+        toPrint[0]= new String[]{SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY, " H\u2003", " G\u2003", " F\u2003", " E\u2003", " D\u2003", " C\u2003", " B\u2003", " A\u2003", SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY};
+        toPrint[9]=toPrint[0];
+        boolean darkTile=true;
 
-                {SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY, " A\u2003", " B\u2003", " C\u2003", " D\u2003", " E\u2003", " F\u2003", " G\u2003", " H\u2003", SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY}
-        };
+        for(int i = 1; i<9; i++){
+            String[] line = new String[10];
+            line[0]=SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + " " + i + "\u2003";
+            for(int j = 1; j<9; j++){
+                if(darkTile){
+                    line[j]=SET_BG_COLOR_DARK_GREY;
+                    darkTile=false;
+                }else{
+                    darkTile=true;
+                    line[j]=SET_BG_COLOR_LIGHT_GREY;
+                }
 
-        StringBuilder output= new StringBuilder();
 
-        for(String[] rows:toPrint){
-            for(String space: rows){
-                if(color== ChessGame.TeamColor.BLACK) {
-                    output.append(space);
-                }else {
-                    output.insert(0, space);
+                ChessPiece piece = board.getPiece(new ChessPosition(i,j));
+                if(piece!=null) {
+                    if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
+                        line[j] += SET_TEXT_COLOR_WHITE;
+                        switch (piece.getPieceType()) {
+                            case ROOK -> line[j] += WHITE_ROOK;
+                            case KNIGHT -> line[j] += WHITE_KNIGHT;
+                            case BISHOP -> line[j] += WHITE_BISHOP;
+                            case QUEEN -> line[j] += WHITE_QUEEN;
+                            case KING -> line[j] += WHITE_KING;
+                            case PAWN -> line[j] += WHITE_PAWN;
+
+                        }
+                    }
+                    else {
+                        line[j] += SET_TEXT_COLOR_BLACK;
+                        switch (piece.getPieceType()) {
+                            case ROOK -> line[j] += BLACK_ROOK;
+                            case KNIGHT -> line[j] += BLACK_KNIGHT;
+                            case BISHOP -> line[j] += BLACK_BISHOP;
+                            case QUEEN -> line[j] += BLACK_QUEEN;
+                            case KING -> line[j] += BLACK_KING;
+                            case PAWN -> line[j] += BLACK_PAWN;
+                        }
+
+
+                    }
+                }
+                else{
+                    line[j] += EMPTY;
                 }
             }
-            if(color== ChessGame.TeamColor.BLACK) {
-                output.append(RESET_BG_COLOR + "\n");
-            }else {
-                output.insert(0, RESET_BG_COLOR + "\n");
+            if(darkTile){
+                darkTile=false;
+            }else{
+                darkTile=true;
             }
+            line[9]=SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + " " + i + "\u2003";
+            toPrint[i]=line;
         }
+        StringBuilder output = printDirection(color, toPrint);
 
         return output.toString() + RESET_BG_COLOR;
+    }
+
+    private static StringBuilder printDirection(ChessGame.TeamColor color, String[][] toPrint) {
+        StringBuilder output= new StringBuilder();
+
+        for(String[] rows: toPrint){
+            StringBuilder row= new StringBuilder();
+            for(String space: rows){
+                if(color == ChessGame.TeamColor.BLACK) {
+                    row.insert(0, space);
+                }else {
+                    row.append(space);
+                }
+            }
+            if(color == ChessGame.TeamColor.BLACK) {
+                output.append(row).append(RESET_BG_COLOR).append("\n");
+            }else {
+                output.insert(0, row + RESET_BG_COLOR + "\n");
+            }
+        }
+        return output;
     }
 
     public String gameHelp() {
@@ -215,7 +276,7 @@ public class ChessClient {
                 case "white", "w" -> printBoard(ChessGame.TeamColor.WHITE);
                 case "black", "b" -> printBoard(ChessGame.TeamColor.BLACK);
                 case "help", "h" -> gameHelp();
-                default -> postLoginHelp();
+                default -> gameHelp();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
