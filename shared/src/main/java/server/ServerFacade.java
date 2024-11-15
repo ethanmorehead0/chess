@@ -42,14 +42,15 @@ public class ServerFacade {
         return lastListedGameSet;
     }
 
-    public void joinGame(JoinGameRequest req) throws ResponseException {
+    public int joinGame(JoinGameRequest req) throws ResponseException {
         if(req.gameID()>lastListedGameSet.games().size() || req.gameID()<=0){
             throw new ResponseException(401,"Invalid Game ID");
         }
-        int gameID= lastListedGameSet.games().get(req.gameID()).gameID();
+        int gameID= lastListedGameSet.games().get(req.gameID()-1).gameID();
         req= new JoinGameRequest(req.playerColor(), gameID);
         var path = "/game";
         this.makeRequest("PUT", path, req, null);
+        return gameID;
     }
 
     public CreateGameResult createGame(CreateGameRequest req) throws ResponseException {

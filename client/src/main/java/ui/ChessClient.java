@@ -7,10 +7,13 @@ import exception.ResponseException;
 import model.*;
 import server.ServerFacade;
 
+import static ui.EscapeSequences.*;
+
 public class ChessClient {
     private final ServerFacade server;
     private AuthData auth;
     private String stage="preLogin";
+    private int gameID = -1;
 
     public ChessClient(String serverUrl) {
         auth=new AuthData(null, null);
@@ -27,7 +30,7 @@ public class ChessClient {
                 result = postLoginEval(input);
             }
             case "game" -> {
-
+                result = gameEval(input);
             }
         }
         return result;
@@ -127,18 +130,19 @@ public class ChessClient {
     public String join(String... params) throws ResponseException{
         if (params.length >= 2) {
             if(params[1].equalsIgnoreCase("black")){
-                server.joinGame(new JoinGameRequest(ChessGame.TeamColor.BLACK, Integer.parseInt(params[0])));
+                gameID = server.joinGame(new JoinGameRequest(ChessGame.TeamColor.BLACK, Integer.parseInt(params[0])));
             }else if(params[1].equalsIgnoreCase("white")){
-                server.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, Integer.parseInt(params[0])));
+                gameID = server.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, Integer.parseInt(params[0])));
             }else{
                 throw new ResponseException(400,"Expected: <GAME ID> <COLOR>");
             }
+            stage = "game";
             return "Joined: '"+params[0]+"'";
         }
         throw new ResponseException(400, "Expected: <GAME ID> <COLOR>");
     }
     public String watch(String... params) throws ResponseException{
-
+        stage="game";
         return "Watching: '"+params[0]+"'";
 
     }
@@ -164,5 +168,48 @@ public class ChessClient {
             """;
     }
 
+
+
+    public String printBoard(ChessGame.TeamColor color) throws ResponseException {
+        String[][] toPrint ={
+                {SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY, " A\u2003", " B\u2003", " C\u2003", " D\u2003", " E\u2003", " F\u2003", " G\u2003", " H\u2003", EMPTY},
+
+                {EMPTY, " A\u2003", " B\u2003", " C\u2003", " D\u2003", " E\u2003", " F\u2003", " G\u2003", " H\u2003", SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + EMPTY}
+        };
+
+        StringBuilder output= new StringBuilder();
+        for(String[] rows:toPrint){
+            for(String space: rows){
+                output.append(space);
+            }
+            output.append("\n");
+        }
+
+        return output.toString() + RESET_BG_COLOR;
+    }
+
+    public String gameHelp() {
+        return """
+            Options:
+            - Print White: "w", "white"
+            - Print Black: "b", "register"
+            - Help: "h", "help"
+            """;
+    }
+    public String gameEval(String input) {
+        try {
+            var tokens = input.toLowerCase().split(" ");
+            var cmd = (tokens.length > 0) ? tokens[0] : "help";
+            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd.toLowerCase()) {
+                case "white", "w" -> printBoard(ChessGame.TeamColor.WHITE);
+                case "black", "b" -> printBoard(ChessGame.TeamColor.BLACK);
+                case "help", "h" -> gameHelp();
+                default -> postLoginHelp();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
+    }
 
 }
