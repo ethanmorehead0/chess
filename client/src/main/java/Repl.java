@@ -6,13 +6,9 @@ import java.util.Scanner;
 
 public class Repl{
     private final ChessClient chessClient;
-    private final PostloginClient postloginClient;
-    //private final GameplayClient gameplayClient;
 
     public Repl(String serverUrl) {
         chessClient = new ChessClient(serverUrl);
-        postloginClient = new PostloginClient(serverUrl);
-        //gameplayClient = new GameplayClient(serverUrl);
     }
 
     public void run() {

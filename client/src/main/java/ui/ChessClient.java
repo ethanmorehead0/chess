@@ -176,7 +176,18 @@ public class ChessClient {
     public String printBoard(ChessGame.TeamColor color) throws ResponseException {
         ChessBoard board = new ChessGame().getBoard();
         String[][] toPrint = new String[10][10];
-        toPrint[0]= new String[]{SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY, " H\u2003", " G\u2003", " F\u2003", " E\u2003", " D\u2003", " C\u2003", " B\u2003", " A\u2003", SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY};
+
+        toPrint[0][0]= SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + "EMPTY";
+        toPrint[0][1]= " H\u2003";
+        toPrint[0][2]= " G\u2003";
+        toPrint[0][3]= " F\u2003";
+        toPrint[0][4]= " E\u2003";
+        toPrint[0][5]= " D\u2003";
+        toPrint[0][6]= " C\u2003";
+        toPrint[0][7]= " B\u2003";
+        toPrint[0][8]= " A\u2003";
+        toPrint[0][9]= SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY;
+
         toPrint[9]=toPrint[0];
         boolean darkTile=true;
 
@@ -196,29 +207,10 @@ public class ChessClient {
                 ChessPiece piece = board.getPiece(new ChessPosition(i,j));
                 if(piece!=null) {
                     if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
-                        line[j] += SET_TEXT_COLOR_WHITE;
-                        switch (piece.getPieceType()) {
-                            case ROOK -> line[j] += WHITE_ROOK;
-                            case KNIGHT -> line[j] += WHITE_KNIGHT;
-                            case BISHOP -> line[j] += WHITE_BISHOP;
-                            case QUEEN -> line[j] += WHITE_QUEEN;
-                            case KING -> line[j] += WHITE_KING;
-                            case PAWN -> line[j] += WHITE_PAWN;
-
-                        }
+                        printPieces(line, j, piece, SET_TEXT_COLOR_WHITE, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_PAWN);
                     }
                     else {
-                        line[j] += SET_TEXT_COLOR_BLACK;
-                        switch (piece.getPieceType()) {
-                            case ROOK -> line[j] += BLACK_ROOK;
-                            case KNIGHT -> line[j] += BLACK_KNIGHT;
-                            case BISHOP -> line[j] += BLACK_BISHOP;
-                            case QUEEN -> line[j] += BLACK_QUEEN;
-                            case KING -> line[j] += BLACK_KING;
-                            case PAWN -> line[j] += BLACK_PAWN;
-                        }
-
-
+                        printPieces(line, j, piece, SET_TEXT_COLOR_BLACK, BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_PAWN);
                     }
                 }
                 else{
@@ -236,6 +228,19 @@ public class ChessClient {
         StringBuilder output = printDirection(color, toPrint);
 
         return output.toString() + RESET_BG_COLOR;
+    }
+
+    private void printPieces(String[] line, int j, ChessPiece piece, String setTextColorWhite, String rook, String knight, String bishop, String queen, String king, String pawn) {
+        line[j] += setTextColorWhite;
+        switch (piece.getPieceType()) {
+            case ROOK -> line[j] += rook;
+            case KNIGHT -> line[j] += knight;
+            case BISHOP -> line[j] += bishop;
+            case QUEEN -> line[j] += queen;
+            case KING -> line[j] += king;
+            case PAWN -> line[j] += pawn;
+
+        }
     }
 
     private static StringBuilder printDirection(ChessGame.TeamColor color, String[][] toPrint) {

@@ -11,11 +11,6 @@ public record AllGamesData (ArrayList<GameData> games) {
         return false;
     }
 
-    public int changeInt(int numberInList){
-        games.get(numberInList);
-        return 1;
-    }
-
     @Override
     public String toString() {
         StringBuilder output= new StringBuilder();
