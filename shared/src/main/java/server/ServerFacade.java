@@ -33,6 +33,7 @@ public class ServerFacade {
     public void logout() throws ResponseException {
         var path = "/session";
         this.makeRequest("DELETE", path, null, null);
+        auth = new AuthData(null, null);
     }
 
     public AllGamesData listGames() throws ResponseException {
@@ -61,6 +62,8 @@ public class ServerFacade {
 
     public void clear() throws ResponseException {
         var path = "/db";
+        auth = new AuthData(null, null);
+        lastListedGameSet =  new AllGamesData(new ArrayList<>());
         this.makeRequest("DELETE", path, null, null);
     }
 
