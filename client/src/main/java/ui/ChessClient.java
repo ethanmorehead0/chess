@@ -132,21 +132,33 @@ public class ChessClient {
 
     public String join(String... params) throws ResponseException{
         if (params.length >= 2) {
-            if(params[1].equalsIgnoreCase("black")){
-                gameID = server.joinGame(new JoinGameRequest(ChessGame.TeamColor.BLACK, Integer.parseInt(params[0])));
-            }else if(params[1].equalsIgnoreCase("white")){
-                gameID = server.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, Integer.parseInt(params[0])));
-            }else{
-                throw new ResponseException(400,"Expected: <GAME ID> <COLOR>");
+            try {
+                if (params[1].equalsIgnoreCase("black")) {
+                    gameID = server.joinGame(new JoinGameRequest(ChessGame.TeamColor.BLACK, Integer.parseInt(params[0])));
+                } else if (params[1].equalsIgnoreCase("white")) {
+                    gameID = server.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, Integer.parseInt(params[0])));
+                } else {
+                    throw new ResponseException(400, "Expected: <GAME NUMBER> <COLOR>");
+                }
+            }catch(NumberFormatException ex){
+                throw new ResponseException(400, "Expected: <GAME NUMBER> <COLOR>");
             }
             stage = "game";
             return "Joined: '"+params[0]+"'";
         }
-        throw new ResponseException(400, "Expected: <GAME ID> <COLOR>");
+        throw new ResponseException(400, "Expected: <GAME NUMBER> <COLOR>");
     }
     public String watch(String... params) throws ResponseException{
-        stage="game";
-        return "Watching: '"+params[0]+"'";
+        if (params.length >= 1) {
+            try {
+                server.watchGame(Integer.parseInt(params[0]));
+            }catch(NumberFormatException ex){
+                throw new ResponseException(400, "Expected: <GAME NUMBER>");
+            }
+            stage = "game";
+            return "Joined: '" + params[0] + "'";
+        }
+        throw new ResponseException(400, "Expected: <GAME NUMBER>");
 
     }
 
@@ -164,8 +176,8 @@ public class ChessClient {
             Options:
             - List current games: "l", "list"
             - Create a new game: "c", "create" <GAME NAME>
-            - Join a game: "j", "join" <GAME ID> <COLOR>
-            - Watch a game: "w", "watch" <GAME ID>
+            - Join a game: "j", "join" <GAME NUMBER> <COLOR>
+            - Watch a game: "w", "watch" <GAME NUMBER>
             - Logout: "logout"
             - Help: "h", "help"
             """;
@@ -177,15 +189,15 @@ public class ChessClient {
         ChessBoard board = new ChessGame().getBoard();
         String[][] toPrint = new String[10][10];
 
-        toPrint[0][0]= SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + "EMPTY";
-        toPrint[0][1]= " H\u2003";
-        toPrint[0][2]= " G\u2003";
-        toPrint[0][3]= " F\u2003";
-        toPrint[0][4]= " E\u2003";
-        toPrint[0][5]= " D\u2003";
-        toPrint[0][6]= " C\u2003";
-        toPrint[0][7]= " B\u2003";
-        toPrint[0][8]= " A\u2003";
+        toPrint[0][0]= SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY;
+        toPrint[0][1]= " A\u2003";
+        toPrint[0][2]= " B\u2003";
+        toPrint[0][3]= " C\u2003";
+        toPrint[0][4]= " D\u2003";
+        toPrint[0][5]= " E\u2003";
+        toPrint[0][6]= " F\u2003";
+        toPrint[0][7]= " G\u2003";
+        toPrint[0][8]= " H\u2003";
         toPrint[0][9]= SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY;
 
         toPrint[9]=toPrint[0];
@@ -266,11 +278,17 @@ public class ChessClient {
         return output;
     }
 
+    public String leave() throws ResponseException{
+        stage="postLogin";
+        return "Game Abandoned";
+    }
+
     public String gameHelp() {
         return """
             Options:
             - Print White: "w", "white"
             - Print Black: "b", "register"
+            - Leave Game: "l", "leave
             - Help: "h", "help"
             """;
     }
@@ -282,6 +300,7 @@ public class ChessClient {
             return switch (cmd.toLowerCase()) {
                 case "white", "w" -> printBoard(ChessGame.TeamColor.WHITE);
                 case "black", "b" -> printBoard(ChessGame.TeamColor.BLACK);
+                case "leave", "l" -> leave();
                 case "help", "h" -> gameHelp();
                 default -> gameHelp();
             };

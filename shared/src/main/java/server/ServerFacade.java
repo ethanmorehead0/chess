@@ -20,13 +20,22 @@ public class ServerFacade {
 
     public AuthData registration(UserData data) throws ResponseException {
         var path = "/user";
-        auth = this.makeRequest("POST", path, data, AuthData.class);
+        try {
+            auth = this.makeRequest("POST", path, data, AuthData.class);
+        }catch (ResponseException ex){
+            throw new ResponseException(400, "Username already exists");
+        }
+
         return auth;
     }
 
     public AuthData login(LoginRequest req) throws ResponseException {
         var path = "/session";
-        auth = this.makeRequest("POST", path, req, AuthData.class);
+        try {
+            auth = this.makeRequest("POST", path, req, AuthData.class);
+        }catch(ResponseException ex){
+            throw new ResponseException(400, "Invalid user/password");
+        }
         return auth;
     }
 
@@ -47,11 +56,22 @@ public class ServerFacade {
         if(req.gameID()>lastListedGameSet.games().size() || req.gameID()<=0){
             throw new ResponseException(401,"Invalid Game ID");
         }
-        int gameID= lastListedGameSet.games().get(req.gameID()-1).gameID();
-        req= new JoinGameRequest(req.playerColor(), gameID);
-        var path = "/game";
-        this.makeRequest("PUT", path, req, null);
-        return gameID;
+        try {
+            int gameID = lastListedGameSet.games().get(req.gameID() - 1).gameID();
+            req = new JoinGameRequest(req.playerColor(), gameID);
+            var path = "/game";
+            this.makeRequest("PUT", path, req, null);
+            return gameID;
+        }catch(ResponseException ex){
+            throw new ResponseException(400,"game already full");
+        }
+
+    }
+    public int watchGame(int gameNumber) throws ResponseException {
+        if(gameNumber>lastListedGameSet.games().size() || gameNumber<=0){
+            throw new ResponseException(401,"Invalid Game ID");
+        }
+        return lastListedGameSet.games().get(gameNumber-1).gameID();
     }
 
     public CreateGameResult createGame(CreateGameRequest req) throws ResponseException {
