@@ -63,7 +63,7 @@ public class ServerFacade {
             this.makeRequest("PUT", path, req, null);
             return gameID;
         }catch(ResponseException ex){
-            throw new ResponseException(400,"game already full");
+            throw new ResponseException(400,"user already filled");
         }
 
     }
