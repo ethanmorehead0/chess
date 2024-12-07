@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.MySqlDataAccess;
 import model.*;
+import server.websocket.WebSocketHandler;
 import spark.*;
 import exception.ResponseException;
 import service.*;
@@ -12,16 +13,19 @@ import java.util.*;
 public class Server {
 
     private final ChessService service;
+    private final WebSocketHandler webSocketHandler;
 
     public Server(){
         try{
             service=new ChessService(new MySqlDataAccess());
+            webSocketHandler = new WebSocketHandler();
         }catch(ResponseException ex){
             throw new RuntimeException(ex);
         }
     }
     public Server(ChessService service) {
         this.service=service;
+        webSocketHandler = new WebSocketHandler();
     }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -35,6 +39,8 @@ public class Server {
             var msg = String.format("[%s] %s not found", req.requestMethod(), req.pathInfo());
             return errorHandler(new Exception(msg), req, res);
         });
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         Spark.post("/user", this::registration);
         Spark.post("/session", this::login);
