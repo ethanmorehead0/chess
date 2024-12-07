@@ -29,6 +29,7 @@ public class Server {
     }
     public int run(int desiredPort) {
         Spark.port(desiredPort);
+        Spark.webSocket("/ws", WebSocketHandler.class);
 
         Spark.staticFiles.location("web");
 
@@ -40,7 +41,6 @@ public class Server {
             return errorHandler(new Exception(msg), req, res);
         });
 
-        Spark.webSocket("/ws", webSocketHandler);
 
         Spark.post("/user", this::registration);
         Spark.post("/session", this::login);
