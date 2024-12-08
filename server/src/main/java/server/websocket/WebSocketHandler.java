@@ -26,7 +26,11 @@ public class WebSocketHandler {
         }
     }
 
-    private void connect(String AuthToken, Session session) throws IOException {
+    private void connect(String authToken, Session session) throws IOException {
+        connections.add(authToken, session);
+        //var message = String.format("%s is in the shop", authToken);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        connections.broadcast(null, notification);
 
     }
 

@@ -286,6 +286,12 @@ public class ChessClient {
     public String gameHelp() {
         return """
             Options:
+
+        CONNECT,
+        MAKE_MOVE,
+        LEAVE,
+        RESIGN
+                    
             - Print White: "w", "white"
             - Print Black: "b", "register"
             - Leave Game: "l", "leave
