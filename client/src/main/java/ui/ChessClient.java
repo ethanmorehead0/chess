@@ -302,6 +302,11 @@ public class ChessClient {
         stage="postLogin";
         return "Game Abandoned";
     }
+    public String makeMove(String... params) throws ResponseException{
+        stage="postLogin";
+        return "Game Abandoned";
+    }
+
     public String resign() throws ResponseException{
         stage="postLogin";
         return "Game Abandoned";
@@ -324,7 +329,7 @@ public class ChessClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd.toLowerCase()) {
                 case "board", "b" -> printBoard(color);
-                case "move", "m" -> printBoard(ChessGame.TeamColor.BLACK); // move(params);
+                case "move", "m" -> makeMove(params);
                 case "leave", "l" -> leave();
                 case "resign", "r" -> resign();
                 case "help", "h" -> gameHelp();
