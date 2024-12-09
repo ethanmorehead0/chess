@@ -47,6 +47,7 @@ public class Server {
         Spark.delete("/session", this::logout);
         Spark.get("/game", this::listGames);
         Spark.put("/game", this::joinGame);
+        Spark.delete("/game", this::leaveGame);
         Spark.post("/game", this::createGame);
         Spark.delete("/db", this::clear);
 
@@ -125,6 +126,16 @@ public class Server {
 
         service.joinGame(auth, joinGame);
 
+
+        return "";
+    }
+
+    private Object leaveGame(Request req, Response res) throws ResponseException {
+        String auth = req.headers("Authorization");
+        var serializer = new Gson();
+        LeaveGameRequest leaveGame = serializer.fromJson(req.body(), LeaveGameRequest.class);
+
+        service.leave(auth, leaveGame);
 
         return "";
     }

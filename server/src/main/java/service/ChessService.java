@@ -48,6 +48,37 @@ public class ChessService {
         }
     }
 
+    public void leave(String authToken, LeaveGameRequest req) throws ResponseException {
+        AuthData auth = dataAccess.getAuth(authToken);
+
+        if(req.playerColor() == null || req.gameID() == null){
+            throw new ResponseException(400,"unauthorized");
+        }
+        if(auth==null){
+            throw new ResponseException(401,"unauthorized");
+        }
+
+        GameData data = dataAccess.getGame(req.gameID());
+        if(data==null){
+            throw new ResponseException(403,"username already taken");
+        }
+        if((req.playerColor().equals(ChessGame.TeamColor.BLACK) && data.blackUsername()==null)){
+            throw new ResponseException(403,"username already taken");
+        }
+        if((req.playerColor() == ChessGame.TeamColor.WHITE && data.whiteUsername()==null)){
+            throw new ResponseException(403,"username already taken");
+        }
+
+        GameData newData;
+        if(req.playerColor()== ChessGame.TeamColor.WHITE){
+            newData= new GameData(data.gameID(), null, data.blackUsername(), data.gameName());
+        }else{
+            newData= new GameData(data.gameID(), data.whiteUsername(), null, data.gameName());
+        }
+
+        dataAccess.updateGame(authToken, newData);
+    }
+
 
     public AuthData register(UserData user) throws ResponseException {
         //need to handle exceptions
@@ -102,15 +133,13 @@ public class ChessService {
         }
 
         GameData newData;
-        //only works with white*******
         if(req.playerColor()== ChessGame.TeamColor.WHITE){
-            newData= new GameData(data.gameID(),auth.username(),data.blackUsername(),data.gameName());
+            newData= new GameData(data.gameID(), auth.username(), data.blackUsername(), data.gameName());
         }else{
-            newData= new GameData(data.gameID(),data.whiteUsername(),auth.username(),data.gameName());
+            newData= new GameData(data.gameID(), data.whiteUsername(), auth.username(), data.gameName());
         }
 
-
-        dataAccess.updateGame(authToken,newData);
+        dataAccess.updateGame(authToken, newData);
     }
 
 

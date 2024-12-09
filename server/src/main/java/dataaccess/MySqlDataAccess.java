@@ -121,7 +121,6 @@ public class MySqlDataAccess implements DataAccess{
     public void updateGame(String auth, GameData data) throws ResponseException {
         var statement= "UPDATE gamedata SET whiteUsername=?, blackUsername=?, gameName=? WHERE id=?";
         executeUpdate(statement, data.whiteUsername(), data.blackUsername(), data.gameName(), data.gameID());
-
     }
 
     public void createAuth(AuthData auth) throws ResponseException {

@@ -67,6 +67,20 @@ public class ServerFacade {
         }
 
     }
+
+    public void leaveGame(LeaveGameRequest req) throws ResponseException {
+        if(req.gameID()>lastListedGameSet.games().size() || req.gameID()<=0){
+            throw new ResponseException(401,"Invalid Game ID");
+        }
+
+        try {
+            var path = "/game";
+            this.makeRequest("DELETE", path, req, null);
+        }catch(ResponseException ex){
+            throw new ResponseException(400,"user not listed in game");
+        }
+
+    }
     public int watchGame(int gameNumber) throws ResponseException {
         if(gameNumber>lastListedGameSet.games().size() || gameNumber<=0){
             throw new ResponseException(401,"Invalid Game ID");
