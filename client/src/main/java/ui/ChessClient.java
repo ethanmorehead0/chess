@@ -18,6 +18,8 @@ public class ChessClient {
     private String stage="preLogin";
     private int gameID = -1;
 
+    private ChessGame.TeamColor color;
+
     public ChessClient(String serverUrl) {
         auth=new AuthData(null, null);
         server = new ServerFacade(serverUrl);
@@ -34,6 +36,9 @@ public class ChessClient {
             }
             case "game" -> {
                 result = gameEval(input);
+            }
+            case "watch" -> {
+                result = watchEval(input);
             }
         }
         return result;
@@ -135,8 +140,10 @@ public class ChessClient {
             try {
                 if (params[1].equalsIgnoreCase("black")) {
                     gameID = server.joinGame(new JoinGameRequest(ChessGame.TeamColor.BLACK, Integer.parseInt(params[0])));
+                    color = ChessGame.TeamColor.BLACK;
                 } else if (params[1].equalsIgnoreCase("white")) {
                     gameID = server.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, Integer.parseInt(params[0])));
+                    color = ChessGame.TeamColor.WHITE;
                 } else {
                     throw new ResponseException(400, "Expected: <GAME NUMBER> <COLOR>");
                 }
@@ -155,7 +162,7 @@ public class ChessClient {
             }catch(NumberFormatException ex){
                 throw new ResponseException(400, "Expected: <GAME NUMBER>");
             }
-            stage = "game";
+            stage = "watch";
             return "Joined: '" + params[0] + "'";
         }
         throw new ResponseException(400, "Expected: <GAME NUMBER>");
@@ -186,7 +193,9 @@ public class ChessClient {
 
 
     public String printBoard(ChessGame.TeamColor color) throws ResponseException {
+
         ChessBoard board = new ChessGame().getBoard();
+
         String[][] toPrint = new String[10][10];
 
         toPrint[0][0]= SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY;
@@ -279,6 +288,21 @@ public class ChessClient {
     }
 
     public String leave() throws ResponseException{
+
+
+        if (color == ChessGame.TeamColor.BLACK) {
+            server.leaveGame(new LeaveGameRequest(ChessGame.TeamColor.BLACK, gameID));
+            color = null;
+            gameID = -1;
+        } else if (color == ChessGame.TeamColor.WHITE) {
+            server.leaveGame(new LeaveGameRequest(ChessGame.TeamColor.WHITE, gameID));
+            color = null;
+            gameID = -1;
+        }
+        stage="postLogin";
+        return "Game Abandoned";
+    }
+    public String resign() throws ResponseException{
         stage="postLogin";
         return "Game Abandoned";
     }
@@ -286,15 +310,10 @@ public class ChessClient {
     public String gameHelp() {
         return """
             Options:
-
-        CONNECT,
-        MAKE_MOVE,
-        LEAVE,
-        RESIGN
-                    
-            - Print White: "w", "white"
-            - Print Black: "b", "register"
-            - Leave Game: "l", "leave
+            - Redraw Board: "b", "board"
+            - Make Move: "m" - pos, "move" - pos
+            - Leave Game: "l", "leave"
+            - Resign: "r", "resign"
             - Help: "h", "help"
             """;
     }
@@ -304,10 +323,35 @@ public class ChessClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd.toLowerCase()) {
-                case "white", "w" -> printBoard(ChessGame.TeamColor.WHITE);
-                case "black", "b" -> printBoard(ChessGame.TeamColor.BLACK);
+                case "board", "b" -> printBoard(color);
+                case "move", "m" -> printBoard(ChessGame.TeamColor.BLACK); // move(params);
                 case "leave", "l" -> leave();
+                case "resign", "r" -> resign();
                 case "help", "h" -> gameHelp();
+                default -> gameHelp();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
+    }
+    public String watchHelp() {
+        return """
+            Options:
+            - Redraw Board: "b", "board"
+            - Leave Game: "l", "leave"
+            - Help: "h", "help"
+            """;
+    }
+    public String watchEval(String input) {
+        try {
+            var tokens = input.toLowerCase().split(" ");
+            var cmd = (tokens.length > 0) ? tokens[0] : "help";
+            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            System.out.println(color);
+            return switch (cmd.toLowerCase()) {
+                case "board", "b" -> printBoard(color);
+                case "leave", "l" -> leave();
+                case "help", "h" -> watchHelp();
                 default -> gameHelp();
             };
         } catch (ResponseException ex) {
