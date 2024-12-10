@@ -50,7 +50,7 @@ public class Repl implements NotificationHandler{
         printPrompt();
     }*/
     public void notify(ServerMessage message){
-        System.out.println("1. " + message);
+        System.out.println("\b\b\b\b1. " + message);
         System.out.println(message.getServerMessageType());
         printPrompt();
     }

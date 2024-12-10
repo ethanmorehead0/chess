@@ -52,6 +52,7 @@ public class WebSocketHandler {
             case MAKE_MOVE -> makeMove(new Gson().fromJson(message, MakeMoveCommand.class), session);
             case LEAVE -> leave(command, session);
             case RESIGN -> resign(command, session);
+            case BOARD -> getBoard(command, session);
         }
     }
 
@@ -70,6 +71,10 @@ public class WebSocketHandler {
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "message");
         sendMessage(loadGame, session);
         broadcastMessage(command.getGameID(), notification, session);
+    }
+    private void getBoard(UserGameCommand command, Session session) throws IOException, ResponseException {
+        var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame(command.getGameID(), command.getAuthToken()));
+        sendMessage(loadGame, session);
     }
 
     private void makeMove(MakeMoveCommand command, Session session) throws IOException, ResponseException {

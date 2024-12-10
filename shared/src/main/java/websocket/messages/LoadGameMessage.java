@@ -9,4 +9,8 @@ public class LoadGameMessage extends ServerMessage{
         super (type);
         this.game=game;
     }
+    @Override
+    public String toString() {
+        return game;
+    }
 }

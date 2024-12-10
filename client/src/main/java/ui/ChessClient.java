@@ -214,6 +214,9 @@ public class ChessClient {
 
 
     public String printBoard(ChessGame.TeamColor color) throws ResponseException {
+        ws.getBoard(auth.authToken(), gameID);
+/*
+        String board = ws.getBoard(auth.authToken(), gameID);
 
         ChessBoard board = new ChessGame().getBoard();
 
@@ -272,6 +275,8 @@ public class ChessClient {
         StringBuilder output = printDirection(color, toPrint);
 
         return output.toString() + RESET_BG_COLOR;
+*/
+        return "";
     }
 
     private void printPieces(String[] line, int j, ChessPiece piece, String r, String kn, String b, String q, String ki, String p) {
