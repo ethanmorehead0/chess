@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import exception.ResponseException;
 import model.*;
 
 
@@ -89,6 +90,10 @@ public class MemoryDataAccess implements DataAccess{
 
     public ChessGame getGameData(Integer gameID) {
         return null;
+    }
+
+    public void updateGameData(String authToken, int gameID, ChessGame game) throws ResponseException {
+
     }
 
 }

@@ -20,4 +20,6 @@ public interface DataAccess {
     boolean checkPassword(String username, String password) throws ResponseException;
 
     ChessGame getGameData(Integer gameID) throws ResponseException;
+
+    void updateGameData(String authToken, int gameID, ChessGame game) throws ResponseException;
 }

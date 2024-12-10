@@ -153,10 +153,10 @@ public class MySqlDataAccess implements DataAccess{
         var statement= "UPDATE gamedata SET whiteUsername=?, blackUsername=?, gameName=? WHERE id=?";
         executeUpdate(statement, data.whiteUsername(), data.blackUsername(), data.gameName(), data.gameID());
     }
-    public void updateGameData(String auth, ChessGame game) throws ResponseException {
+    public void updateGameData(String auth, int gameID, ChessGame game) throws ResponseException {
         var statement= "UPDATE gamedata SET game=? WHERE id=?";
         var serializer=new Gson();
-        executeUpdate(statement, serializer.toJson(game));
+        executeUpdate(statement, serializer.toJson(game), gameID);
     }
 
     public void createAuth(AuthData auth) throws ResponseException {
