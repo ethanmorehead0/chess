@@ -11,6 +11,7 @@ import java.util.Collection;
  */
 public class ChessGame {
     private TeamColor teamTurn = TeamColor.WHITE;
+    private TeamColor winner = null;
     private ChessBoard board = new ChessBoard();
     public ChessGame() {
         board.resetBoard();
@@ -23,6 +24,10 @@ public class ChessGame {
         return teamTurn;
     }
 
+    public TeamColor getWinner() {
+        return winner;
+    }
+
     /**
      * Set's which teams turn it is
      *
@@ -31,13 +36,20 @@ public class ChessGame {
     public void setTeamTurn(TeamColor team) {
         teamTurn = team;
     }
+    public void setWinner(TeamColor team) {
+        winner = team;
+    }
 
     public void changeTeamTurn(){
         if(teamTurn==TeamColor.WHITE){
             teamTurn=TeamColor.BLACK;
-        }else{
+        }else if(teamTurn==TeamColor.BLACK){
             teamTurn=TeamColor.WHITE;
         }
+    }
+
+    public void endGame() {
+        teamTurn=null;
     }
 
     /**

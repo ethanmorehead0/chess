@@ -8,6 +8,7 @@ import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -170,14 +171,74 @@ public class ChessService {
             throw new ResponseException(401, "Error: invalid game/user.");
         }
         ChessGame game = dataAccess.getGameData(command.getGameID());
+        GameData data = dataAccess.getGame(command.getGameID());
+        System.out.println(game.getTeamTurn());
+        if(game.getWinner()!=null){
+            throw new ResponseException(401, "Error: Game already over");
+        }
+        if (game.getTeamTurn() == ChessGame.TeamColor.WHITE){
+            if (!Objects.equals(data.whiteUsername(), dataAccess.getAuth(command.getAuthToken()).username())){
+                throw new ResponseException(401, "Error: Player out of turn");
+            }
+        } else if (game.getTeamTurn() == ChessGame.TeamColor.BLACK) {
+            if (!Objects.equals(data.blackUsername(), dataAccess.getAuth(command.getAuthToken()).username())){
+                throw new ResponseException(401, "Error: Player out of turn");
+            }
+        }else{
+            throw new ResponseException(401, "Error: Game over");
+        }
+        System.out.println(command.move.getStartPosition());
         game.makeMove(command.move);
+        dataAccess.updateGameData(command.getAuthToken(), command.getGameID(), game);
 
 
     }
-    public void leaveGame(String authToken, String name) throws ResponseException{
+    public ChessGame.TeamColor leaveGame(UserGameCommand command) throws ResponseException{
+        if(!canConnect(command)){
+            throw new ResponseException(401, "Error: invalid game/user.");
+        }
+        GameData data = dataAccess.getGame(command.getGameID());
 
+        if (Objects.equals(data.whiteUsername(), dataAccess.getAuth(command.getAuthToken()).username())){
+            GameData newData = new GameData(data.gameID(), null, data.blackUsername(), data.gameName());
+            dataAccess.updateGame(command.getAuthToken(), newData);
+        }
+        else if (Objects.equals(data.blackUsername(), dataAccess.getAuth(command.getAuthToken()).username())){
+            GameData newData = new GameData(data.gameID(), data.whiteUsername(), null, data.gameName());
+            dataAccess.updateGame(command.getAuthToken(), newData);
+        }else{
+            throw new ResponseException(401, "Error: Can not forfeit");
+        }
+
+
+
+
+        return null;
     }
-    public void resignGame(String authToken, String name) throws ResponseException{
+    public void resignGame(UserGameCommand command) throws ResponseException{
+        if(!canConnect(command)){
+            throw new ResponseException(401, "Error: invalid game/user.");
+        }
+        ChessGame game = dataAccess.getGameData(command.getGameID());
+        GameData data = dataAccess.getGame(command.getGameID());
+        System.out.println(game.getTeamTurn());
+        if(game.getWinner()!=null){
+            throw new ResponseException(401, "Error: Game is already over");
+
+        }
+        if (Objects.equals(data.whiteUsername(), dataAccess.getAuth(command.getAuthToken()).username())){
+
+            game.setWinner(ChessGame.TeamColor.WHITE);
+            dataAccess.updateGameData(command.getAuthToken(), command.getGameID(), game);
+        }
+        else if (Objects.equals(data.blackUsername(), dataAccess.getAuth(command.getAuthToken()).username())){
+            game.setWinner(ChessGame.TeamColor.BLACK);
+            dataAccess.updateGameData(command.getAuthToken(), command.getGameID(), game);
+        }else{
+            throw new ResponseException(401, "Error: Can not forfeit");
+        }
+
+        //make turn color null.
 
     }
 
