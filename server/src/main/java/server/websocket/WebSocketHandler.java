@@ -89,10 +89,8 @@ public class WebSocketHandler {
     }
 
     public void leave(UserGameCommand command, Session session) throws IOException {
-        //connections.removeSessionFromGame(authToken);
-        ChessGame.TeamColor team=null;
         try {
-            team = service.leaveGame(command);
+            service.leaveGame(command);
         }catch (Exception exception){
             var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "\n"+exception.getMessage()+"\n"+exception.getLocalizedMessage()+"\n");
             sendMessage(error, session);
@@ -104,7 +102,9 @@ public class WebSocketHandler {
 
         //if player is white/black
         //if player is an observer
-        /*if(team!=null){
+        broadcastMessage(command.getGameID(), notification, session);
+        connections.removeSessionFromGame(command.getGameID(), session);
+        /*if(team==null){
             broadcastMessage(command.getGameID(), notification, session);
         }
         else{sendMessage(notification, session);}*/

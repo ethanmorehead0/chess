@@ -9,11 +9,15 @@ import chess.ChessPosition;
 import exception.ResponseException;
 import model.*;
 import server.ServerFacade;
+import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
 
 public class ChessClient {
     private final ServerFacade server;
+    private String serverUrl;
+    private WebSocketFacade ws;
+    private final NotificationHandler notificationHandler;
     private AuthData auth;
     private String stage="preLogin";
     private int gameID = -1;
@@ -21,8 +25,18 @@ public class ChessClient {
     private ChessGame.TeamColor color;
 
     public ChessClient(String serverUrl) {
+        this.serverUrl = serverUrl;
         auth=new AuthData(null, null);
         server = new ServerFacade(serverUrl);
+        notificationHandler = new NotificationHandler() {
+            public void notify(ServerMessage message) { }
+        };
+    }
+    public ChessClient(String serverUrl, NotificationHandler notificationHandler) {
+        this.serverUrl = serverUrl;
+        auth=new AuthData(null, null);
+        server = new ServerFacade(serverUrl);
+        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input){
@@ -36,6 +50,9 @@ public class ChessClient {
             }
             case "game" -> {
                 result = gameEval(input);
+            }
+            case "forfeit" -> {
+                result = forfeitEval(input);
             }
             case "watch" -> {
                 result = watchEval(input);
@@ -132,7 +149,7 @@ public class ChessClient {
             var output = server.createGame(new CreateGameRequest(params[0]));
             return "Created: '"+params[0]+"'";
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
+        throw new ResponseException(400, "Expected: <GAME NAME>");
     }
 
     public String join(String... params) throws ResponseException{
@@ -144,12 +161,16 @@ public class ChessClient {
                 } else if (params[1].equalsIgnoreCase("white")) {
                     gameID = server.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, Integer.parseInt(params[0])));
                     color = ChessGame.TeamColor.WHITE;
+
                 } else {
                     throw new ResponseException(400, "Expected: <GAME NUMBER> <COLOR>");
                 }
+                ws = new WebSocketFacade(serverUrl, notificationHandler);
+                ws.joinChessGame(auth.authToken(), gameID);
             }catch(NumberFormatException ex){
                 throw new ResponseException(400, "Expected: <GAME NUMBER> <COLOR>");
             }
+
             stage = "game";
             return "Joined: '"+params[0]+"'";
         }
@@ -289,27 +310,20 @@ public class ChessClient {
 
     public String leave() throws ResponseException{
 
+        ws.leaveChessGame(auth.authToken(), gameID);
+        color = null;
 
-        if (color == ChessGame.TeamColor.BLACK) {
-            server.leaveGame(new LeaveGameRequest(ChessGame.TeamColor.BLACK, gameID));
-            color = null;
-            gameID = -1;
-        } else if (color == ChessGame.TeamColor.WHITE) {
-            server.leaveGame(new LeaveGameRequest(ChessGame.TeamColor.WHITE, gameID));
-            color = null;
-            gameID = -1;
-        }
         stage="postLogin";
-        return "Game Abandoned";
+        return "Left game";
     }
     public String makeMove(String... params) throws ResponseException{
-        stage="postLogin";
-        return "Game Abandoned";
+
+        return "";
     }
 
     public String resign() throws ResponseException{
-        stage="postLogin";
-        return "Game Abandoned";
+        stage="forfeit";
+        return "Do you really want to quit?";
     }
 
     public String gameHelp() {
@@ -352,7 +366,6 @@ public class ChessClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            System.out.println(color);
             return switch (cmd.toLowerCase()) {
                 case "board", "b" -> printBoard(color);
                 case "leave", "l" -> leave();
@@ -362,6 +375,34 @@ public class ChessClient {
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+    public String forfeitHelp() {
+        return """
+            Options:
+            - Redraw Board: "b", "board"
+            - Leave Game: "l", "leave"
+            - Help: "h", "help"
+            """;
+    }
+    public String forfeitEval(String input) {
+        var tokens = input.toLowerCase().split(" ");
+        var cmd = (tokens.length > 0) ? tokens[0] : "help";
+        var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        return switch (cmd.toLowerCase()) {
+            case "yes", "y" -> forfeit();
+            case "help", "h" -> forfeitHelp();
+            default -> continueGame();
+        };
+    }
+    public String forfeit() {
+        //forfeit
+        stage="watch";
+        return "Match Abandoned";
+    }
+    public String continueGame() {
+        //forfeit
+        stage="game";
+        return "Match Continued";
     }
 
 }

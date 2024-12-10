@@ -161,7 +161,6 @@ public class ChessService {
             }
 
         }catch(ResponseException exception){
-            System.out.println(exception.getMessage());
             return false;
         }
         return true;
@@ -172,7 +171,6 @@ public class ChessService {
         }
         ChessGame game = dataAccess.getGameData(command.getGameID());
         GameData data = dataAccess.getGame(command.getGameID());
-        System.out.println(game.getTeamTurn());
         if(game.getWinner()!=null){
             throw new ResponseException(401, "Error: Game already over");
         }
@@ -187,13 +185,12 @@ public class ChessService {
         }else{
             throw new ResponseException(401, "Error: Game over");
         }
-        System.out.println(command.move.getStartPosition());
         game.makeMove(command.move);
         dataAccess.updateGameData(command.getAuthToken(), command.getGameID(), game);
 
 
     }
-    public ChessGame.TeamColor leaveGame(UserGameCommand command) throws ResponseException{
+    public void leaveGame(UserGameCommand command) throws ResponseException{
         if(!canConnect(command)){
             throw new ResponseException(401, "Error: invalid game/user.");
         }
@@ -206,14 +203,7 @@ public class ChessService {
         else if (Objects.equals(data.blackUsername(), dataAccess.getAuth(command.getAuthToken()).username())){
             GameData newData = new GameData(data.gameID(), data.whiteUsername(), null, data.gameName());
             dataAccess.updateGame(command.getAuthToken(), newData);
-        }else{
-            throw new ResponseException(401, "Error: Can not forfeit");
         }
-
-
-
-
-        return null;
     }
     public void resignGame(UserGameCommand command) throws ResponseException{
         if(!canConnect(command)){
@@ -221,7 +211,6 @@ public class ChessService {
         }
         ChessGame game = dataAccess.getGameData(command.getGameID());
         GameData data = dataAccess.getGame(command.getGameID());
-        System.out.println(game.getTeamTurn());
         if(game.getWinner()!=null){
             throw new ResponseException(401, "Error: Game is already over");
 

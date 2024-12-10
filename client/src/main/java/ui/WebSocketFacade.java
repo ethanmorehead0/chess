@@ -3,7 +3,7 @@ package ui;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -15,6 +15,7 @@ public class WebSocketFacade extends Endpoint {
 
     Session session;
     NotificationHandler notificationHandler;
+
 
 
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
@@ -31,7 +32,23 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
-                    notificationHandler.notify(notification);
+                    switch(notification.getServerMessageType()){
+                        case LOAD_GAME:
+                            ServerMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                            notificationHandler.notify(loadGameMessage);
+                            break;
+                        case ERROR:
+                            ServerMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                            notificationHandler.notify(errorMessage);
+                            break;
+                        case NOTIFICATION:
+                            ServerMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
+                            notificationHandler.notify(notificationMessage);
+                            break;
+                        default:
+                            notificationHandler.notify(notification);
+                    }
+
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -42,20 +59,22 @@ public class WebSocketFacade extends Endpoint {
     //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
+
     }
 
-    public void enterChessGame(String visitorName, int gameID) throws ResponseException {
+    public void joinChessGame(String authToken, int gameID) throws ResponseException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, visitorName, gameID);
+            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-    public void leaveChessGame(String visitorName, int gameID) throws ResponseException {
+    public void leaveChessGame(String authToken, int gameID) throws ResponseException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, visitorName, gameID);
+            var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
+
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
