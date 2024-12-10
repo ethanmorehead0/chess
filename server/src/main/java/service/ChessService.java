@@ -3,6 +3,7 @@ import chess.ChessGame;
 import dataaccess.DataAccess;
 import exception.ResponseException;
 import model.*;
+import websocket.commands.UserGameCommand;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -142,6 +143,31 @@ public class ChessService {
         dataAccess.updateGame(authToken, newData);
     }
 
+    public boolean connect(UserGameCommand command) throws ResponseException{
+        try {
+            AuthData auth = dataAccess.getAuth(command.getAuthToken());
+            if (command.getGameID() == null || command.getAuthToken() == null) {
+                throw new ResponseException(401, "unauthorized");
+            }
+
+            GameData data = dataAccess.getGame(command.getGameID());
+        }catch(ResponseException exception){
+            System.out.println(exception.getMessage());
+            return false;
+        }
+        return true;
+        //check listed games
+        //check auth
+    }
+    public void makeMove(String authToken, String name) throws ResponseException{
+
+    }
+    public void leaveGame(String authToken, String name) throws ResponseException{
+
+    }
+    public void resignGame(String authToken, String name) throws ResponseException{
+
+    }
 
 
 

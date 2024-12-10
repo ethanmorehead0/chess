@@ -1,9 +1,12 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.MySqlDataAccess;
 import exception.ResponseException;
+import model.*;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
+import service.ChessService;
 import websocket.messages.*;
 import websocket.commands.*;
 
@@ -15,6 +18,30 @@ import java.util.ArrayList;
 public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    ChessService service;
+
+    public WebSocketHandler() throws ResponseException {
+        service=new ChessService(new MySqlDataAccess());
+    }
+    public WebSocketHandler(ChessService service) {
+        this.service = service;
+    }
+
+/*
+    @OnWebSocketConnect
+    public void onConnect(Session session){
+
+    }
+    @OnWebSocketClose
+    public void onClose(Session session){
+
+    }
+    @OnWebSocketError
+    public void onError(Throwable throwable){
+
+    }
+*/
+
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, ResponseException {
@@ -22,35 +49,46 @@ public class WebSocketHandler {
         switch (command.getCommandType()) {
             case CONNECT -> connect(command, session);
             case MAKE_MOVE -> makeMove();
-            case LEAVE -> leave(command.getAuthToken());
+            case LEAVE -> leave(command, session);
             case RESIGN -> resign();
         }
     }
 
-    private void connect(UserGameCommand command, Session session) throws IOException {
-        /*if(!connections.connections.containsKey(command.getGameID())){
-            connections.broadcast(command.getGameID(), new LoadGameMessage(ServerMessage.ServerMessageType.ERROR));
+    private void connect(UserGameCommand command, Session session) throws IOException, ResponseException {
+
+        /*try {
+            if (!service.connect(command)) {
+                var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "message");
+                sendMessage(error, session);
+
+                return;
+            }
+        }catch(ResponseException exception){
             return;
         }*/
-        connections.addSessionToGame(command.getGameID(), session);
 
+
+
+        connections.addSessionToGame(command.getGameID(), session);
         //if statement that checks to see if game exists if not then send server message of type error.
         //if
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "game");
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "message");
         sendMessage(loadGame, session);
-        broadcastMessage(1, notification, session);
+        broadcastMessage(command.getGameID(), notification, session);
     }
 
     private void makeMove() throws ResponseException {
 
     }
 
-    public void leave(String authToken) throws IOException {
+    public void leave(UserGameCommand command, Session session) throws IOException {
         //connections.removeSessionFromGame(authToken);
 
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        //connections.broadcast(command.getGameID, notification);
+        var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "game");
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "leave");
+        //broadcastMessage(1, notification, session);
+
     }
 
     public void resign() throws ResponseException {
@@ -61,39 +99,33 @@ public class WebSocketHandler {
         session.getRemote().sendString(serializer.toJson(message));
     }
     public void broadcastMessage(int gameID, ServerMessage message, Session exceptThisSession) throws IOException {
-        ArrayList<Session> sessions = connections.getSessionsForGame(gameID);
+        ArrayList<Session> sessions = this.connections.getSessionsForGame(gameID);
+        var removeList = new ArrayList<Session>();
         for(Session session:sessions){
-            if(!session.equals(exceptThisSession)) {
-                var serializer = new Gson();
-                session.getRemote().sendString(serializer.toJson(message));
-            }
-        }
-
-
-
-        /*var removeList = new ArrayList<Connection>();
-        ArrayList<Session> broadcastToSessions = connections.get(gameID);
-        var serializer = new Gson();
-        for (Session session: broadcastToSessions){
-            //session.send(serializer.toJson(message));
-            session.
-        }
-        for (var c : connections.get(gameID)) {
-            System.out.println(c);
-            if (c.session.isOpen()) {
-                if (!c.authData.equals(excludeVisitorName)) {
+            if(session.isOpen()) {
+                if (!session.equals(exceptThisSession)) {
                     var serializer = new Gson();
-                    c.send(serializer.toJson(message));
+                    session.getRemote().sendString(serializer.toJson(message));
                 }
             } else {
-                removeList.add(c);
+                removeList.add(session);
             }
         }
 
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connections.remove(c.authData);
-        }*/
+        for (var session : removeList) {
+            connections.removeSessionFromGame(gameID, session);
+        }
+
+    }
+    public String loadGame(int gameID, String auth)throws ResponseException{
+        AllGamesData games = service.listGames(auth);
+        var serializer=new Gson();
+        for (GameData game:games.games()){
+            if(game.gameID()==gameID){
+                return serializer.toJson(game);
+            }
+        }
+        throw new ResponseException(401,"error: no game found");
     }
 
 }

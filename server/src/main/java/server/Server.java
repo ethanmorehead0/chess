@@ -18,14 +18,14 @@ public class Server {
     public Server(){
         try{
             service=new ChessService(new MySqlDataAccess());
-            webSocketHandler = new WebSocketHandler();
+            webSocketHandler = new WebSocketHandler(service);
         }catch(ResponseException ex){
             throw new RuntimeException(ex);
         }
     }
     public Server(ChessService service) {
         this.service=service;
-        webSocketHandler = new WebSocketHandler();
+        webSocketHandler = new WebSocketHandler(service);
     }
     public int run(int desiredPort) {
         Spark.port(desiredPort);

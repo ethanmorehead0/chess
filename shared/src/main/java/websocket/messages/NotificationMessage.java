@@ -5,8 +5,8 @@ public class NotificationMessage extends ServerMessage{
     public NotificationMessage(ServerMessageType type) {
         super(type);
     }
-    public NotificationMessage(ServerMessageType type, String game){
+    public NotificationMessage(ServerMessageType type, String message){
         super (type);
-        this.message=game;
+        this.message=message;
     }
 }
