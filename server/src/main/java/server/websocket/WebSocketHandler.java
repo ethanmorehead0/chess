@@ -104,10 +104,10 @@ public class WebSocketHandler {
 
         //if player is white/black
         //if player is an observer
-        if(team!=null){
+        /*if(team!=null){
             broadcastMessage(command.getGameID(), notification, session);
         }
-        else{sendMessage(notification, session);}
+        else{sendMessage(notification, session);}*/
     }
 
     public void resign(UserGameCommand command, Session session) throws ResponseException, IOException {
