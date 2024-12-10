@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.MySqlDataAccess;
 import exception.ResponseException;
@@ -50,7 +51,7 @@ public class WebSocketHandler {
             case CONNECT -> connect(command, session);
             case MAKE_MOVE -> makeMove(new Gson().fromJson(message, MakeMoveCommand.class), session);
             case LEAVE -> leave(command, session);
-            case RESIGN -> resign();
+            case RESIGN -> resign(command, session);
         }
     }
 
@@ -68,46 +69,65 @@ public class WebSocketHandler {
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame(command.getGameID(), command.getAuthToken()));
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "message");
         sendMessage(loadGame, session);
-        boardcastMessage(command.getGameID(), notification, session);
+        broadcastMessage(command.getGameID(), notification, session);
     }
 
     private void makeMove(MakeMoveCommand command, Session session) throws IOException, ResponseException {
         try{
             service.makeMove(command);
         }catch(Exception exception){
-            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, exception.getMessage().toString());
+            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "\n"+exception.getMessage()+"\n"+exception.getLocalizedMessage()+"\n");
             sendMessage(error, session);
             return;
         }
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "game");
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ "joined the game");
         sendMessage(loadGame, session);
-        boardcastMessage(command.getGameID(), loadGame, session);
-        boardcastMessage(command.getGameID(), notification, session);
-
-
-
-
+        broadcastMessage(command.getGameID(), loadGame, session);
+        broadcastMessage(command.getGameID(), notification, session);
 
     }
 
     public void leave(UserGameCommand command, Session session) throws IOException {
         //connections.removeSessionFromGame(authToken);
+        ChessGame.TeamColor team=null;
+        try {
+            team = service.leaveGame(command);
+        }catch (Exception exception){
+            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "\n"+exception.getMessage()+"\n"+exception.getLocalizedMessage()+"\n");
+            sendMessage(error, session);
+            return;
+        }
 
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "game");
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "leave");
-        //broadcastMessage(1, notification, session);
 
+        //if player is white/black
+        //if player is an observer
+        if(team!=null){
+            broadcastMessage(command.getGameID(), notification, session);
+        }
+        else{sendMessage(notification, session);}
     }
 
-    public void resign() throws ResponseException {
-
+    public void resign(UserGameCommand command, Session session) throws ResponseException, IOException {
+        try{
+        service.resignGame(command);
+        }
+        catch(Exception exception){
+            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Can not resign");
+            sendMessage(error, session);
+            return;
+        }
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "leave");
+        sendMessage(notification, session);
+        broadcastMessage(command.getGameID() ,notification, session);
     }
     public void sendMessage(ServerMessage message, Session session) throws IOException {
         var serializer=new Gson();
         session.getRemote().sendString(serializer.toJson(message));
     }
-    public void boardcastMessage(int gameID, ServerMessage message, Session exceptThisSession) throws IOException {
+    public void broadcastMessage(int gameID, ServerMessage message, Session exceptThisSession) throws IOException {
         ArrayList<Session> sessions = this.connections.getSessionsForGame(gameID);
         var removeList = new ArrayList<Session>();
         for(Session session:sessions){
