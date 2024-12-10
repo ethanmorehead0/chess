@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.*;
 
 
@@ -83,6 +84,11 @@ public class MemoryDataAccess implements DataAccess{
 
         UserData user=getUser(username);
         return user.password().equals(password);
+    }
+
+
+    public ChessGame getGameData(Integer gameID) {
+        return null;
     }
 
 }

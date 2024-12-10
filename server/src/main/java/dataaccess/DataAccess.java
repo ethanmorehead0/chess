@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import model.*;
 
@@ -17,4 +18,6 @@ public interface DataAccess {
     AuthData getAuth(String auth) throws ResponseException;
     void deleteAuth(AuthData authToken) throws ResponseException;
     boolean checkPassword(String username, String password) throws ResponseException;
+
+    ChessGame getGameData(Integer gameID) throws ResponseException;
 }

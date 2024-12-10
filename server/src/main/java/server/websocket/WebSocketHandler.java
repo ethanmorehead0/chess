@@ -48,7 +48,7 @@ public class WebSocketHandler {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case CONNECT -> connect(command, session);
-            case MAKE_MOVE -> makeMove();
+            case MAKE_MOVE -> makeMove(new Gson().fromJson(message, MakeMoveCommand.class), session);
             case LEAVE -> leave(command, session);
             case RESIGN -> resign();
         }
@@ -56,29 +56,38 @@ public class WebSocketHandler {
 
     private void connect(UserGameCommand command, Session session) throws IOException, ResponseException {
 
-        /*try {
-            if (!service.connect(command)) {
-                var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "message");
-                sendMessage(error, session);
-
-                return;
-            }
-        }catch(ResponseException exception){
+        if(!service.canConnect(command)){
+            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "message");
+            sendMessage(error, session);
             return;
-        }*/
-
-
+        }
 
         connections.addSessionToGame(command.getGameID(), session);
         //if statement that checks to see if game exists if not then send server message of type error.
         //if
-        var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "game");
+        var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame(command.getGameID(), command.getAuthToken()));
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "message");
         sendMessage(loadGame, session);
-        broadcastMessage(command.getGameID(), notification, session);
+        boardcastMessage(command.getGameID(), notification, session);
     }
 
-    private void makeMove() throws ResponseException {
+    private void makeMove(MakeMoveCommand command, Session session) throws IOException, ResponseException {
+        try{
+            service.makeMove(command);
+        }catch(Exception exception){
+            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, exception.getMessage().toString());
+            sendMessage(error, session);
+            return;
+        }
+        var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "game");
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ "joined the game");
+        sendMessage(loadGame, session);
+        boardcastMessage(command.getGameID(), loadGame, session);
+        boardcastMessage(command.getGameID(), notification, session);
+
+
+
+
 
     }
 
@@ -98,7 +107,7 @@ public class WebSocketHandler {
         var serializer=new Gson();
         session.getRemote().sendString(serializer.toJson(message));
     }
-    public void broadcastMessage(int gameID, ServerMessage message, Session exceptThisSession) throws IOException {
+    public void boardcastMessage(int gameID, ServerMessage message, Session exceptThisSession) throws IOException {
         ArrayList<Session> sessions = this.connections.getSessionsForGame(gameID);
         var removeList = new ArrayList<Session>();
         for(Session session:sessions){

@@ -36,6 +36,9 @@ public class MySqlDataAccess implements DataAccess{
         var gameName = rs.getString("gameName");
         return new GameData(gameID, whiteUsername, blackUsername, gameName);
     }
+    private String readGameData(ResultSet rs) throws SQLException {
+        return rs.getString("game");
+    }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
         var authToken = rs.getString("authtoken");
@@ -83,6 +86,15 @@ public class MySqlDataAccess implements DataAccess{
 
         return executeUpdate(statement, gameName, newGame);
     }
+    public int updateGameData(String username, String gameName) throws ResponseException {
+
+        var statement= "UPDATE gamedata SET game=? WHERE id=?";
+        var serializer=new Gson();
+        ChessGame game = new ChessGame();
+        String newGame = serializer.toJson(game);
+
+        return executeUpdate(statement, gameName, newGame);
+    }
     public GameData getGame(int gameID) throws ResponseException {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT id, whiteUsername, blackUsername, gameName FROM gamedata WHERE id=?";
@@ -91,6 +103,25 @@ public class MySqlDataAccess implements DataAccess{
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
                         return readGame(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return null;
+
+    }
+    public ChessGame getGameData(Integer gameID) throws ResponseException {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT game FROM gamedata WHERE id=?";
+            var serializer=new Gson();
+
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return serializer.fromJson(readGameData(rs), ChessGame.class);
                     }
                 }
             }
@@ -121,6 +152,11 @@ public class MySqlDataAccess implements DataAccess{
     public void updateGame(String auth, GameData data) throws ResponseException {
         var statement= "UPDATE gamedata SET whiteUsername=?, blackUsername=?, gameName=? WHERE id=?";
         executeUpdate(statement, data.whiteUsername(), data.blackUsername(), data.gameName(), data.gameID());
+    }
+    public void updateGameData(String auth, ChessGame game) throws ResponseException {
+        var statement= "UPDATE gamedata SET game=? WHERE id=?";
+        var serializer=new Gson();
+        executeUpdate(statement, serializer.toJson(game));
     }
 
     public void createAuth(AuthData auth) throws ResponseException {

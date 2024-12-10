@@ -1,8 +1,10 @@
 package service;
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import dataaccess.DataAccess;
 import exception.ResponseException;
 import model.*;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
 import java.util.ArrayList;
@@ -143,23 +145,33 @@ public class ChessService {
         dataAccess.updateGame(authToken, newData);
     }
 
-    public boolean connect(UserGameCommand command) throws ResponseException{
+    public String getName(String authtoken) throws ResponseException{
+        return dataAccess.getAuth(authtoken).username();
+    }
+    public boolean canConnect(UserGameCommand command) throws ResponseException{
         try {
             AuthData auth = dataAccess.getAuth(command.getAuthToken());
-            if (command.getGameID() == null || command.getAuthToken() == null) {
+            GameData data = dataAccess.getGame(command.getGameID());
+            if (data == null) {
                 throw new ResponseException(401, "unauthorized");
             }
+            if(auth == null){
+                throw new ResponseException(401, "invalid game");
+            }
 
-            GameData data = dataAccess.getGame(command.getGameID());
         }catch(ResponseException exception){
             System.out.println(exception.getMessage());
             return false;
         }
         return true;
-        //check listed games
-        //check auth
     }
-    public void makeMove(String authToken, String name) throws ResponseException{
+    public void makeMove(MakeMoveCommand command) throws ResponseException, InvalidMoveException {
+        if(!canConnect(command)){
+            throw new ResponseException(401, "Error: invalid game/user.");
+        }
+        ChessGame game = dataAccess.getGameData(command.getGameID());
+        game.makeMove(command.move);
+
 
     }
     public void leaveGame(String authToken, String name) throws ResponseException{
