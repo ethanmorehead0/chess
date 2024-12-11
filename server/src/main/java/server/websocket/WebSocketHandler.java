@@ -28,20 +28,6 @@ public class WebSocketHandler {
         this.service = service;
     }
 
-/*
-    @OnWebSocketConnect
-    public void onConnect(Session session){
-
-    }
-    @OnWebSocketClose
-    public void onClose(Session session){
-
-    }
-    @OnWebSocketError
-    public void onError(Throwable throwable){
-
-    }
-*/
 
 
     @OnWebSocketMessage
@@ -86,13 +72,15 @@ public class WebSocketHandler {
             return;
         }
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame(command.getGameID(), command.getAuthToken()));
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ " moved from " + command.move.getStartPosition() + " to " + command.move.getEndPosition());
+        String message=service.getName(command.getAuthToken())+ " moved from " + command.move.getStartPosition() + " to " + command.move.getEndPosition();
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         sendMessage(loadGame, session);
         broadcastMessage(command.getGameID(), loadGame, session);
         broadcastMessage(command.getGameID(), notification, session);
 
         if(service.isCheckmate(command.getGameID(), command.getAuthToken())){
-            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Checkmate - " + service.getName(command.getAuthToken()) + " WINS!!!");
+            message = "Checkmate - " + service.getName(command.getAuthToken()) + " WINS!!!";
+            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
             sendMessage(notification, session);
             broadcastMessage(command.getGameID(), notification, session);
         }else if(service.isCheck(command.getGameID())){
@@ -108,22 +96,20 @@ public class WebSocketHandler {
         try {
             service.leaveGame(command);
         }catch (Exception exception){
-            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "\n"+exception.getMessage()+"\n"+exception.getLocalizedMessage()+"\n");
+            String message = "\n"+exception.getMessage()+"\n"+exception.getLocalizedMessage()+"\n";
+            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, message);
             sendMessage(error, session);
             return;
         }
 
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "game");
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ " left the match");
+        String message = service.getName(command.getAuthToken())+ " left the match";
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
 
         //if player is white/black
         //if player is an observer
         broadcastMessage(command.getGameID(), notification, session);
         connections.removeSessionFromGame(command.getGameID(), session);
-        /*if(team==null){
-            broadcastMessage(command.getGameID(), notification, session);
-        }
-        else{sendMessage(notification, session);}*/
     }
 
     public void resign(UserGameCommand command, Session session) throws ResponseException, IOException {
@@ -135,7 +121,8 @@ public class WebSocketHandler {
             sendMessage(error, session);
             return;
         }
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ " forfeits the match");
+        String message = service.getName(command.getAuthToken())+ " forfeits the match";
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         sendMessage(notification, session);
         broadcastMessage(command.getGameID() ,notification, session);
     }

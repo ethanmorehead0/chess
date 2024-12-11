@@ -25,10 +25,6 @@ public class ConnectionManager {
         connections.get(gameID).remove(session);
     }
 
-    /*public void removeSession(Session session) {
-        connections.get(gameID).remove(session);
-    }*/
-
     public ArrayList<Session> getSessionsForGame(int gameID) {
         return connections.get(gameID);
     }

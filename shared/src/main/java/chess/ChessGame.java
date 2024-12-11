@@ -48,10 +48,6 @@ public class ChessGame {
         }
     }
 
-    public void endGame() {
-        teamTurn=null;
-    }
-
     /**
      * Enum identifying the 2 possible teams in a chess game
      */
