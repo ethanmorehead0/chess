@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.MySqlDataAccess;
 import exception.ResponseException;
@@ -54,7 +55,8 @@ public class WebSocketHandler {
         //if statement that checks to see if game exists if not then send server message of type error.
         //if
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame(command.getGameID(), command.getAuthToken()));
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ " joined the game");
+        String message = service.getName(command.getAuthToken())+ " joined the game";
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         sendMessage(loadGame, session);
         broadcastMessage(command.getGameID(), notification, session);
     }
@@ -72,7 +74,8 @@ public class WebSocketHandler {
             return;
         }
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame(command.getGameID(), command.getAuthToken()));
-        String message=service.getName(command.getAuthToken())+ " moved from " + command.move.getStartPosition() + " to " + command.move.getEndPosition();
+        ChessMove move=command.move;
+        String message=service.getName(command.getAuthToken())+ " moved from " + move.getStartPosition() + " to " + move.getEndPosition();
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         sendMessage(loadGame, session);
         broadcastMessage(command.getGameID(), loadGame, session);
