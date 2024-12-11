@@ -1,3 +1,7 @@
+import chess.ChessBoard;
+import chess.ChessGame;
+import com.google.gson.Gson;
+import exception.ResponseException;
 import ui.*;
 import static ui.EscapeSequences.*;
 import websocket.messages.*;
@@ -37,21 +41,18 @@ public class Repl implements NotificationHandler{
 
     }
 
-    /*public void notify(LoadGameMessage message){
-        System.out.println(SET_TEXT_COLOR_BLUE + message);
-        printPrompt();
-    }
-    public void notify(NotificationMessage message){
-        System.out.println(SET_TEXT_COLOR_BLUE + message);
-        printPrompt();
-    }
-    public void notify(ErrorMessage message){
-        System.out.println(SET_TEXT_COLOR_RED + message);
-        printPrompt();
-    }*/
     public void notify(ServerMessage message){
-        System.out.println("\b\b\b\b1. " + message);
-        System.out.println(message.getServerMessageType());
+        if(message.getServerMessageType()== ServerMessage.ServerMessageType.LOAD_GAME){
+            ChessGame game = new Gson().fromJson(message.toString(), ChessGame.class);
+            try {
+                System.out.print("\b\b\b\b" + chessClient.printBoard(game.getBoard()));
+                printPrompt();
+                return;
+            } catch (ResponseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        System.out.println("\b\b\b\b" + SET_TEXT_COLOR_BLUE + message.toString());
         printPrompt();
     }
 

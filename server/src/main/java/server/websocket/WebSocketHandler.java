@@ -59,7 +59,7 @@ public class WebSocketHandler {
     private void connect(UserGameCommand command, Session session) throws IOException, ResponseException {
 
         if(!service.canConnect(command)){
-            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "message");
+            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: could not connect");
             sendMessage(error, session);
             return;
         }
@@ -68,7 +68,7 @@ public class WebSocketHandler {
         //if statement that checks to see if game exists if not then send server message of type error.
         //if
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame(command.getGameID(), command.getAuthToken()));
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "message");
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ " joined the game");
         sendMessage(loadGame, session);
         broadcastMessage(command.getGameID(), notification, session);
     }
@@ -81,19 +81,30 @@ public class WebSocketHandler {
         try{
             service.makeMove(command);
         }catch(Exception exception){
-            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "\n"+exception.getMessage()+"\n"+exception.getLocalizedMessage()+"\n");
+            var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, exception.getMessage());
             sendMessage(error, session);
             return;
         }
-        var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "game");
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ "joined the game");
+        var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, loadGame(command.getGameID(), command.getAuthToken()));
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ " moved from " + command.move.getStartPosition() + " to " + command.move.getEndPosition());
         sendMessage(loadGame, session);
         broadcastMessage(command.getGameID(), loadGame, session);
         broadcastMessage(command.getGameID(), notification, session);
 
+        if(service.isCheckmate(command.getGameID(), command.getAuthToken())){
+            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Checkmate - " + service.getName(command.getAuthToken()) + " WINS!!!");
+            sendMessage(notification, session);
+            broadcastMessage(command.getGameID(), notification, session);
+        }else if(service.isCheck(command.getGameID())){
+            notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Check");
+            sendMessage(notification, session);
+            broadcastMessage(command.getGameID(), notification, session);
+
+        }
+
     }
 
-    public void leave(UserGameCommand command, Session session) throws IOException {
+    public void leave(UserGameCommand command, Session session) throws IOException, ResponseException {
         try {
             service.leaveGame(command);
         }catch (Exception exception){
@@ -103,7 +114,7 @@ public class WebSocketHandler {
         }
 
         var loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "game");
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "leave");
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ " left the match");
 
         //if player is white/black
         //if player is an observer
@@ -124,7 +135,7 @@ public class WebSocketHandler {
             sendMessage(error, session);
             return;
         }
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "leave");
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, service.getName(command.getAuthToken())+ " forfeits the match");
         sendMessage(notification, session);
         broadcastMessage(command.getGameID() ,notification, session);
     }
@@ -152,14 +163,9 @@ public class WebSocketHandler {
 
     }
     public String loadGame(int gameID, String auth)throws ResponseException{
-        AllGamesData games = service.listGames(auth);
+        ChessGame game=service.getGameData(gameID);
         var serializer=new Gson();
-        for (GameData game:games.games()){
-            if(game.gameID()==gameID){
-                return serializer.toJson(game);
-            }
-        }
-        throw new ResponseException(401,"error: no game found");
+        return serializer.toJson(game);
     }
 
 }

@@ -1,7 +1,9 @@
 package ui;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.*;
 
@@ -79,6 +81,17 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, ex.getMessage());
         }
     }
+
+    public void makeMove(String authToken, int gameID, ChessMove move) throws ResponseException {
+        try {
+            var action = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
     public void getBoard(String authToken, int gameID) throws ResponseException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.BOARD, authToken, gameID);
@@ -88,16 +101,15 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-
-    public void leavePetShop(String visitorName) throws ResponseException {
-        try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, visitorName, 1);
+    public void resignChessGame(String authToken, int gameID) throws ResponseException {
+        try{
+            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
-            this.session.close();
-        } catch (IOException ex) {
+        }catch (IOException ex){
             throw new ResponseException(500, ex.getMessage());
         }
     }
+
 
 }
 

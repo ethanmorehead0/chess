@@ -27,7 +27,7 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return "CPos: r-" + row + ", c-" + col;
+        return "" + (char)(col+96) + (char)(row+48);
     }
 
     public ChessPosition(int row, int col) {

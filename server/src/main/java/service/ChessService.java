@@ -187,8 +187,35 @@ public class ChessService {
         }
         game.makeMove(command.move);
         dataAccess.updateGameData(command.getAuthToken(), command.getGameID(), game);
+    }
+    public boolean isCheckmate(int gameId, String authToken) throws ResponseException {
+        ChessGame game = dataAccess.getGameData(gameId);
+        GameData data = dataAccess.getGame(gameId);
+        if (game.getTeamTurn() == ChessGame.TeamColor.BLACK){
+            if (game.isInCheckmate(ChessGame.TeamColor.BLACK)){
+                game.setWinner(ChessGame.TeamColor.WHITE);
+                dataAccess.updateGameData(authToken, gameId, game);
+                return true;
+            }
+        } else if (game.getTeamTurn() == ChessGame.TeamColor.WHITE) {
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)){
+                game.setWinner(ChessGame.TeamColor.WHITE);
+                dataAccess.updateGameData(authToken, gameId, game);
+                return true;
+            }
+        }
 
+        return false;
+    }
+    public boolean isCheck(int gameID) throws ResponseException {
+        ChessGame game = dataAccess.getGameData(gameID);
+        if (game.getTeamTurn() == ChessGame.TeamColor.BLACK){
+            return game.isInCheck(ChessGame.TeamColor.BLACK);
+        } else if (game.getTeamTurn() == ChessGame.TeamColor.WHITE) {
+            return game.isInCheck(ChessGame.TeamColor.WHITE);
+        }
 
+        return false;
     }
     public void leaveGame(UserGameCommand command) throws ResponseException{
         if(!canConnect(command)){
@@ -204,6 +231,9 @@ public class ChessService {
             GameData newData = new GameData(data.gameID(), data.whiteUsername(), null, data.gameName());
             dataAccess.updateGame(command.getAuthToken(), newData);
         }
+    }
+    public ChessGame getGameData(int gameID) throws ResponseException {
+        return dataAccess.getGameData(gameID);
     }
     public void resignGame(UserGameCommand command) throws ResponseException{
         if(!canConnect(command)){

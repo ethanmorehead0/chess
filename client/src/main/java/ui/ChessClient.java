@@ -2,10 +2,7 @@ package ui;
 
 import java.util.Arrays;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import exception.ResponseException;
 import model.*;
 import server.ServerFacade;
@@ -39,7 +36,7 @@ public class ChessClient {
         this.notificationHandler = notificationHandler;
     }
 
-    public String eval(String input){
+    public String eval(String input) throws ResponseException {
         String result="";
         switch (stage) {
             case "preLogin" -> {
@@ -213,12 +210,12 @@ public class ChessClient {
 
 
 
-    public String printBoard(ChessGame.TeamColor color) throws ResponseException {
+    public String printBoard() throws ResponseException {
         ws.getBoard(auth.authToken(), gameID);
-/*
-        String board = ws.getBoard(auth.authToken(), gameID);
+        return "";
+    }
+    public String printBoard(ChessBoard board) throws ResponseException {
 
-        ChessBoard board = new ChessGame().getBoard();
 
         String[][] toPrint = new String[10][10];
 
@@ -273,10 +270,10 @@ public class ChessClient {
             toPrint[i]=line;
         }
         StringBuilder output = printDirection(color, toPrint);
+        output.append(RESET_BG_COLOR);
 
-        return output.toString() + RESET_BG_COLOR;
-*/
-        return "";
+        return output.toString();
+
     }
 
     private void printPieces(String[] line, int j, ChessPiece piece, String r, String kn, String b, String q, String ki, String p) {
@@ -322,9 +319,21 @@ public class ChessClient {
         return "Left game";
     }
     public String makeMove(String... params) throws ResponseException{
+        if (params.length<2 || params[0].length()<2 || params[1].length()<2){
+            throw new ResponseException(400, "Expected <pos1> <pos2> (ex: a1 b2");
+        }
+
+        ChessPosition start = new ChessPosition(params[0].charAt(1)-48, params[0].charAt(0)-96);
+        ChessPosition end = new ChessPosition(params[1].charAt(1)-48, params[1].charAt(0)-96);
+        ChessMove move=new ChessMove(start, end, null);
+
+        ws.makeMove(auth.authToken(), gameID, move);
+
+
 
         return "";
     }
+
 
     public String resign() throws ResponseException{
         stage="forfeit";
@@ -335,7 +344,7 @@ public class ChessClient {
         return """
             Options:
             - Redraw Board: "b", "board"
-            - Make Move: "m" - pos, "move" - pos
+            - Make Move: "m" , "move" <pos1> <pos2>
             - Leave Game: "l", "leave"
             - Resign: "r", "resign"
             - Help: "h", "help"
@@ -347,7 +356,7 @@ public class ChessClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd.toLowerCase()) {
-                case "board", "b" -> printBoard(color);
+                case "board", "b" -> printBoard();
                 case "move", "m" -> makeMove(params);
                 case "leave", "l" -> leave();
                 case "resign", "r" -> resign();
@@ -372,10 +381,10 @@ public class ChessClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd.toLowerCase()) {
-                case "board", "b" -> printBoard(color);
+                case "board", "b" -> printBoard();
                 case "leave", "l" -> leave();
                 case "help", "h" -> watchHelp();
-                default -> gameHelp();
+                default -> watchHelp();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
@@ -389,7 +398,7 @@ public class ChessClient {
             - Help: "h", "help"
             """;
     }
-    public String forfeitEval(String input) {
+    public String forfeitEval(String input) throws ResponseException {
         var tokens = input.toLowerCase().split(" ");
         var cmd = (tokens.length > 0) ? tokens[0] : "help";
         var params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -399,10 +408,11 @@ public class ChessClient {
             default -> continueGame();
         };
     }
-    public String forfeit() {
+    public String forfeit() throws ResponseException {
         //forfeit
+        ws.resignChessGame(auth.authToken(), gameID);
         stage="watch";
-        return "Match Abandoned";
+        return "";
     }
     public String continueGame() {
         //forfeit
