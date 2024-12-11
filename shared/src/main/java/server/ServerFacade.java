@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import model.*;
@@ -87,6 +88,7 @@ public class ServerFacade {
         }
         return lastListedGameSet.games().get(gameNumber-1).gameID();
     }
+
 
     public CreateGameResult createGame(CreateGameRequest req) throws ResponseException {
         var path = "/game";

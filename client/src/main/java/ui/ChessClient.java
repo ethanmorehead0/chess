@@ -1,5 +1,6 @@
 package ui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import chess.*;
@@ -17,6 +18,7 @@ public class ChessClient {
     private final NotificationHandler notificationHandler;
     private AuthData auth;
     private String stage="preLogin";
+    private ChessPosition toHighlight=null;
     private int gameID = -1;
 
     private ChessGame.TeamColor color;
@@ -176,7 +178,9 @@ public class ChessClient {
     public String watch(String... params) throws ResponseException{
         if (params.length >= 1) {
             try {
-                server.watchGame(Integer.parseInt(params[0]));
+                gameID = server.watchGame(Integer.parseInt(params[0]));
+                ws = new WebSocketFacade(serverUrl, notificationHandler);
+                ws.joinChessGame(auth.authToken(), gameID);
             }catch(NumberFormatException ex){
                 throw new ResponseException(400, "Expected: <GAME NUMBER>");
             }
@@ -216,6 +220,10 @@ public class ChessClient {
     }
     public String printBoard(ChessBoard board) throws ResponseException {
 
+        if(toHighlight!=null){
+            ChessGame game = new ChessGame(board);
+            return printHighlighted(game);
+        }
 
         String[][] toPrint = new String[10][10];
 
@@ -272,6 +280,88 @@ public class ChessClient {
         StringBuilder output = printDirection(color, toPrint);
         output.append(RESET_BG_COLOR);
 
+        return output.toString();
+
+    }
+    public String printHighlightedBoard(String... params) throws ResponseException {
+        toHighlight = new ChessPosition(params[0].charAt(1)-48, params[0].charAt(0)-96);
+
+        return printBoard();
+    }
+    public String printHighlighted(ChessGame game) throws ResponseException {
+
+        ChessBoard board = game.getBoard();
+        ArrayList<ChessPosition> highlighted=new ArrayList<>();
+        for(ChessMove move:game.validMoves(toHighlight)){
+            highlighted.add(move.getEndPosition());
+        }
+
+
+        String[][] toPrint = new String[10][10];
+
+        toPrint[0][0]= SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY;
+        toPrint[0][1]= " A\u2003";
+        toPrint[0][2]= " B\u2003";
+        toPrint[0][3]= " C\u2003";
+        toPrint[0][4]= " D\u2003";
+        toPrint[0][5]= " E\u2003";
+        toPrint[0][6]= " F\u2003";
+        toPrint[0][7]= " G\u2003";
+        toPrint[0][8]= " H\u2003";
+        toPrint[0][9]= SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + EMPTY;
+
+        toPrint[9]=toPrint[0];
+        boolean darkTile=true;
+
+        for(int i = 1; i<9; i++){
+            String[] line = new String[10];
+            line[0]=SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + " " + i + "\u2003";
+            for(int j = 1; j<9; j++){
+                ChessPosition printSquare = new ChessPosition(i,j);
+                if(darkTile){
+                    if(highlighted.contains(printSquare)){
+                        line[j]=SET_BG_COLOR_DARK_GREEN;
+                        darkTile=false;
+                    }else{
+                        line[j]=SET_BG_COLOR_DARK_GREY;
+                        darkTile=false;
+                    }
+                }else{
+                    if(highlighted.contains(printSquare)) {
+                        darkTile = true;
+                        line[j] = SET_BG_COLOR_GREEN;
+                    } else{
+                        line[j]=SET_BG_COLOR_LIGHT_GREY;
+                        darkTile=true;
+                    }
+                }
+
+                ChessPiece piece = board.getPiece(new ChessPosition(i,j));
+                if(piece!=null) {
+                    if(piece.getTeamColor()== ChessGame.TeamColor.WHITE) {
+                        line[j] += SET_TEXT_COLOR_WHITE;
+                        printPieces(line, j, piece, WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_PAWN);
+                    }
+                    else {
+                        line[j] += SET_TEXT_COLOR_BLACK;
+                        printPieces(line, j, piece, BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_PAWN);
+                    }
+                }
+                else{
+                    line[j] += EMPTY;
+                }
+            }
+            if(darkTile){
+                darkTile=false;
+            }else{
+                darkTile=true;
+            }
+            line[9]=SET_BG_COLOR_GREY + SET_TEXT_COLOR_BLACK + " " + i + "\u2003";
+            toPrint[i]=line;
+        }
+        StringBuilder output = printDirection(color, toPrint);
+        output.append(RESET_BG_COLOR);
+        toHighlight=null;
         return output.toString();
 
     }
@@ -345,6 +435,7 @@ public class ChessClient {
             Options:
             - Redraw Board: "b", "board"
             - Make Move: "m" , "move" <pos1> <pos2>
+            - High Moves: "hi" , "highlight" <pos1>
             - Leave Game: "l", "leave"
             - Resign: "r", "resign"
             - Help: "h", "help"
@@ -358,6 +449,7 @@ public class ChessClient {
             return switch (cmd.toLowerCase()) {
                 case "board", "b" -> printBoard();
                 case "move", "m" -> makeMove(params);
+                case "highlight", "hi" -> printHighlightedBoard(params);
                 case "leave", "l" -> leave();
                 case "resign", "r" -> resign();
                 case "help", "h" -> gameHelp();
@@ -382,6 +474,7 @@ public class ChessClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd.toLowerCase()) {
                 case "board", "b" -> printBoard();
+                case "highlight", "hi" -> printHighlightedBoard(params);
                 case "leave", "l" -> leave();
                 case "help", "h" -> watchHelp();
                 default -> watchHelp();
@@ -394,6 +487,7 @@ public class ChessClient {
         return """
             Options:
             - Redraw Board: "b", "board"
+            - High Moves: "hi" , "highlight" <pos1>
             - Leave Game: "l", "leave"
             - Help: "h", "help"
             """;
